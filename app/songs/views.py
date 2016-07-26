@@ -33,7 +33,7 @@ def delete_artist():
     """
     form = DeleteArtistForm(request.form)
     if form.validate_on_submit():
-        artist = Artist.query.filter_by(name=form.name).first()
+        artist = Artist.query.filter_by(name=form.name.data).first()
         if artist:
             db.session.delete(artist)
             db.session.commit()
@@ -52,7 +52,7 @@ def delete_dance():
     """
     form = DeleteDanceForm(request.form)
     if form.validate_on_submit():
-        dance = Dance.query.filter_by(name=form.name).first()
+        dance = Dance.query.filter_by(name=form.name.data).first()
         if dance:
             db.session.delete(dance)
             db.session.commit()
@@ -73,7 +73,7 @@ def create_song():
     if form.validate_on_submit():
         artist, dance = get_or_add_artist_and_dance(form)
 
-        song = Song(title=form.title, dance=dance, artist=artist)
+        song = Song(title=form.title.data, dance=dance, artist=artist)
         db.session.add(song)
         db.session.commit()
 
@@ -95,7 +95,7 @@ def edit_song():
 
             g.song.artist_id = artist.id
             g.song.dance_id = dance.id
-            g.song.title = form.title
+            g.song.title = form.title.data
 
             db.session.update(g.song)
             db.session.commit()
@@ -117,18 +117,18 @@ def get_or_add_artist_and_dance(form):
     Get the artist and the dance with the names form the form from the db.
     If they are not present, create new ones.
     """
-    dance = Dance.query.filter_by(name=form.dance_name).first()
+    dance = Dance.query.filter_by(name=form.dance_name.data).first()
     if not dance:
         flash('No dance with this name. Added new.')
 
-        dance = Dance(name=form.dance_name)
+        dance = Dance(name=form.dance_name.data)
         db.session.add(dance)
         db.session.commit()
-    artist = Artist.query.filter_by(name=form.artist_name).first()
+    artist = Artist.query.filter_by(name=form.artist_name.data).first()
     if not artist:
-        flash('No dance with this name. Added new.')
+        flash('No artist with this name. Added new.')
 
-        artist = Artist(name=form.artist_name)
+        artist = Artist(name=form.artist_name.data)
         db.session.add(artist)
         db.session.commit()
     return artist, dance
