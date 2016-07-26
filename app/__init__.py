@@ -41,3 +41,6 @@ def not_found(error):
 
 from app.users.views import mod as usersModule
 app.register_blueprint(usersModule)
+
+from app.songs.views import mod as songsModule
+app.register_blueprint(songsModule)
