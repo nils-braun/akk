@@ -84,11 +84,11 @@ def create_song():
 
 
 @mod.route('/edit_song/', methods=['GET', 'POST'])
-def register():
+def edit_song():
     """
-    Create new song form
+    Edit or delete a song
     """
-    form = EditSongForm(request.form, g.song)
+    form = EditSongForm(request.form, None)
     if form.validate_on_submit():
         if form.edit_button.data:
             artist, dance = get_or_add_artist_and_dance(form)
@@ -113,6 +113,10 @@ def register():
 
 
 def get_or_add_artist_and_dance(form):
+    """
+    Get the artist and the dance with the names form the form from the db.
+    If they are not present, create new ones.
+    """
     dance = Dance.query.filter_by(name=form.dance_name).first()
     if not dance:
         flash('No dance with this name. Added new.')

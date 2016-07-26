@@ -1,0 +1,6 @@
+{% extends "songs/create_song.html" %}
+{% block buttons %}
+  {% from "forms/macros.html" import render_field %}
+    {{ form.edit_button(class="input") }}
+    {{ form.delete_button(class="input") }}
+{% endblock %}

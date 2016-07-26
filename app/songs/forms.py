@@ -25,6 +25,21 @@ class CreateSongForm(Form):
     artist_name = StringField('Artist', [DataRequired()])
     dance_name = StringField('Dance', [DataRequired()])
 
+
 class EditSongForm(CreateSongForm):
+    """
+    Refined form for editing songs.
+    """
     edit_button = SubmitField()
     delete_button = SubmitField()
+
+    def __init__(self, song, *args, **kwargs):
+        """
+        Create a new form by calling the super class __init__
+        and setting the values of the form.
+        """
+        super(EditSongForm, self).__init__(*args, **kwargs)
+
+        self.title.data = song.title
+        self.artist_name.data = song.artist.name
+        self.dance_name.data = song.dance.name
