@@ -88,21 +88,27 @@ def edit_song():
     """
     Edit or delete a song
     """
-    form = EditSongForm(request.form, None)
+    song_id = Song.request.args.get("song_id")
+    song = Song.query.filter_by(id=song_id).first()
+
+    if not song:
+        return render_template("404.html")
+
+    form = EditSongForm(request.form, song)
     if form.validate_on_submit():
         if form.edit_button.data:
             artist, dance = get_or_add_artist_and_dance(form)
 
-            g.song.artist_id = artist.id
-            g.song.dance_id = dance.id
-            g.song.title = form.title.data
+            song.artist_id = artist.id
+            song.dance_id = dance.id
+            song.title = form.title.data
 
             db.session.update(g.song)
             db.session.commit()
 
             flash('Sucessfully updated song')
         elif form.delete_button.data:
-            db.session.delete(g.song)
+            db.session.delete(song)
             db.session.commit()
 
             flash('Sucessfully deleted song')
