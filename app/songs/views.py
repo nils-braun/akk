@@ -88,13 +88,26 @@ def edit_song():
     """
     Edit or delete a song
     """
-    song_id = Song.request.args.get("song_id")
-    song = Song.query.filter_by(id=song_id).first()
 
-    if not song:
-        return render_template("404.html")
+    form = EditSongForm(request.form)
 
-    form = EditSongForm(request.form, song)
+    if not form.song_id:
+        # it seems we are coming directly from the main page
+        song_id = request.args.get("song_id")
+        song = Song.query.filter_by(id=song_id).first()
+
+        form.song_id = song.id
+        form.artist_name.data = song.artist.name
+        form.dance_name.data = song.dance.name
+
+        if not song:
+            return render_template("404.html")
+
+    else:
+        # this will be called on reloading the form
+        song_id = form.song_id
+        song = Song.query.filter_by(id=song_id).first()
+
     if form.validate_on_submit():
         if form.edit_button.data:
             artist, dance = get_or_add_artist_and_dance(form)
