@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <table>
+        <thead>
+
+        </thead>
+        <tbody>
+            {% for song in songs %}
+                <tr onclick="window.location='{{ url_for('songs.edit_song', song_id=song.id) }}'">
+                    <td>{{ song.title }}</td>
+                    <td>{{ song.artist.name }}</td>
+                    <td>{{ song.dance.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
+    <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
+    <a href="{{ url_for('songs.create_song') }}">Add Song</a>
+{% endblock %}
