@@ -27,6 +27,7 @@ def before_request():
 
 
 @mod.route('/delete_artist/', methods=['GET', 'POST'])
+@requires_login
 def delete_artist():
     """
     Delete artist form
@@ -46,6 +47,7 @@ def delete_artist():
 
 
 @mod.route('/delete_dance/', methods=['GET', 'POST'])
+@requires_login
 def delete_dance():
     """
     Delete dance form
@@ -65,6 +67,7 @@ def delete_dance():
 
 
 @mod.route('/create_song/', methods=['GET', 'POST'])
+@requires_login
 def create_song():
     """
     Create new song form
@@ -84,6 +87,7 @@ def create_song():
 
 
 @mod.route('/edit_song/', methods=['GET', 'POST'])
+@requires_login
 def edit_song():
     """
     Edit or delete a song
