@@ -56,7 +56,14 @@ class Song(db.Model):
     creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
 
     def get_rating(self):
-        return sum(rating.value for rating in Rating.query.filter_by(song_id=self.id).all())
+        return sum(rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value > 0)
+
+    def get_user_rating(self, user):
+        query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
+        if query.count() > 0:
+            return query.one().value
+        else:
+            return -1
 
     def get_number_of_playlists(self):
         # TODO

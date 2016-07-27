@@ -1,6 +1,6 @@
 from app import db
-from app.songs.models import Song, Dance, Artist
-from flask import request, flash, redirect, url_for, render_template
+from app.songs.models import Song, Dance, Artist, Rating
+from flask import request, flash, redirect, url_for, render_template, g
 
 
 def delete_entity(FormClass, DataClass, name, song_argument):
@@ -67,3 +67,21 @@ def get_or_add_artist_and_dance(form):
 
         flash('No artist with the name {}. Added new.'.format(artist.name))
     return artist, dance
+
+
+def set_or_add_rating(song, rating_value):
+    query = Rating.query.filter_by(song_id=song.id)
+
+    if query.count() == 0:
+        # Add new rating
+        new_rating = Rating(g.user, song)
+        new_rating.value = rating_value
+
+        db.session.add(new_rating)
+    else:
+        # Update old rating
+        old_rating = query.one()
+        old_rating.value = rating_value
+        db.session.merge(old_rating)
+
+    db.session.commit()
