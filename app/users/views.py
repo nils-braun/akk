@@ -9,12 +9,6 @@ from app.users.decorators import requires_login
 mod = Blueprint('users', __name__, url_prefix='/users')
 
 
-@mod.route('/me/')
-@requires_login
-def home():
-    return render_template("users/profile.html", user=g.user)
-
-
 @mod.before_request
 def before_request():
     """
@@ -31,7 +25,6 @@ def login():
     Login form
     """
     form = LoginForm(request.form)
-    # make sure data are valid, but doesn't validate password is right
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         # we use werzeug to validate user's password
@@ -40,7 +33,7 @@ def login():
             # it's a safe place to store the user id
             session['user_id'] = user.id
             flash('Welcome %s' % user.name)
-            return redirect(url_for('users.home'))
+            return redirect(url_for('songs.home'))
         flash('Wrong email or password', 'error-message')
     return render_template("users/login.html", form=form)
 
@@ -64,5 +57,5 @@ def register():
         # flash will display a message to the user
         flash('Thanks for registering')
         # redirect user to the 'home' method of the user module.
-        return redirect(url_for('users.home'))
+        return redirect(url_for('songs.home'))
     return render_template("users/register.html", form=form)

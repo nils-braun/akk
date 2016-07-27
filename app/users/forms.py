@@ -18,7 +18,4 @@ class RegisterForm(Form):
     name = StringField('Name', [DataRequired()])
     email = StringField('Email address', [DataRequired(), Email()])
     password = PasswordField('Password', [DataRequired()])
-    confirm = PasswordField('Repeat Password', [
-        DataRequired(),
-        EqualTo('password', message='Passwords must match')
-    ])
+    confirm = PasswordField('Repeat Password', [DataRequired(), EqualTo('password', message='Passwords must match')])
