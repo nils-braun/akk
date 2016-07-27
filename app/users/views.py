@@ -19,12 +19,28 @@ def before_request():
         g.user = User.query.get(session['user_id'])
 
 
+@mod.route('/logout/', methods=['GET', 'POST'])
+def logout():
+    if g.user:
+        g.user = None
+        del session["user_id"]
+
+    return redirect(url_for("users.login"))
+
+
 @mod.route('/login/', methods=['GET', 'POST'])
 def login():
     """
     Login form
     """
+    if g.user:
+        return redirect(url_for("songs.home"))
+
     form = LoginForm(request.form)
+    next_path = request.args.get("next")
+    if next_path:
+        form.next_path.data = next_path
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         # we use werzeug to validate user's password
@@ -33,7 +49,11 @@ def login():
             # it's a safe place to store the user id
             session['user_id'] = user.id
             flash('Welcome %s' % user.name)
-            return redirect(url_for('songs.home'))
+
+            if form.next_path.data:
+                return redirect(form.next_path.data)
+            else:
+                return redirect(url_for('songs.home'))
         flash('Wrong email or password', 'error-message')
     return render_template("users/login.html", form=form)
 

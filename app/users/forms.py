@@ -1,5 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
+from wtforms.fields.simple import HiddenField
 from wtforms.validators import DataRequired, EqualTo, Email
 
 
@@ -9,6 +10,7 @@ class LoginForm(Form):
     """
     email = StringField('Email address', [DataRequired(), Email()])
     password = PasswordField('Password', [DataRequired()])
+    next_path = HiddenField(default=None)
 
 
 class RegisterForm(Form):
