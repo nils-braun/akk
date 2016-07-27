@@ -1,4 +1,5 @@
 from app import db
+from app.users.models import User
 
 
 class Dance(db.Model):
@@ -50,15 +51,43 @@ class Song(db.Model):
     dance_id = db.Column(db.Integer, db.ForeignKey('songs_dances.id'))
     # Delete when dance is deleted
     dance = db.relationship(Dance, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
+    creation_user_id = db.Column(db.Integer, db.ForeignKey("users_user.id"))
+    # Delete when user is deleted
+    creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
 
-    def __init__(self, title, artist, dance):
+    def get_rating(self):
+        return sum(rating.value for rating in Rating.query.filter_by(song_id=self.id).all())
+
+    def get_number_of_playlists(self):
+        # TODO
+        return 0
+
+    def __init__(self, title, artist, dance, creation_user):
         """
         Create a new song.
         """
         self.title = title
         self.artist_id = artist.id
         self.dance_id = dance.id
+        self.creation_user_id = creation_user.id
 
     def __repr__(self):
         return "Song: {self.title} ({self.id}) - {self.artist} - {self.dance}".format(self=self)
 
+
+class Rating(db.Model):
+    __tablename__ = "songs_ratings"
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("users_user.id"))
+    # Delete when user is deleted
+    user = db.relationship(User, backref=db.backref("songs_ratings", uselist=True, cascade='delete,all'))
+    song_id = db.Column(db.Integer, db.ForeignKey("songs_songs.id"))
+    # Delete when song is deleted
+    song = db.relationship(Song, backref=db.backref("songs_ratings", uselist=True, cascade='delete,all'))
+
+    # FIXME: Constraint on double voting!
+
+    def __init__(self, user, song):
+        self.song_id = song.id
+        self.user_id = user.id
