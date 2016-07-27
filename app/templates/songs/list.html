@@ -2,7 +2,13 @@
 {% block content %}
     <table>
         <thead>
-
+            <tr>
+                <td>Song Title</td>
+                <td>Artist Name</td>
+                <td>Dance Name</td>
+                <td>Rating</td>
+                <td>Number of Playlists</td>
+            </tr>
         </thead>
         <tbody>
             {% for song in songs %}
@@ -10,6 +16,8 @@
                     <td>{{ song.title }}</td>
                     <td>{{ song.artist.name }}</td>
                     <td>{{ song.dance.name }}</td>
+                    <td>{{ song.get_rating() }}</td>
+                    <td>{{ song.get_number_of_playlists() }}</td>
                 </tr>
             {% endfor %}
         </tbody>
