@@ -1,6 +1,7 @@
 from app import db
 from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
-from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance
+from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
+    set_or_add_rating
 from app.songs.models import Artist, Dance, Song
 from app.users.decorators import requires_login
 from app.users.models import User
@@ -72,7 +73,7 @@ def edit_song():
     """
     form = EditSongForm(request.form)
 
-    if form.validate_on_submit():
+    if form.is_submitted():
         # this will be called on reloading the form
         song_id = form.song_id.data
         song = Song.query.filter_by(id=song_id).first()
@@ -80,30 +81,33 @@ def edit_song():
         old_artist = song.artist
         old_dance = song.dance
 
-        if form.edit_button.data:
+        if form.validate():
+            if form.edit_button.data:
 
-            artist, dance = get_or_add_artist_and_dance(form)
+                artist, dance = get_or_add_artist_and_dance(form)
 
-            song.artist_id = artist.id
-            song.dance_id = dance.id
-            song.title = form.title.data
+                song.artist_id = artist.id
+                song.dance_id = dance.id
+                song.title = form.title.data
 
-            db.session.merge(song)
-            db.session.commit()
+                db.session.merge(song)
+                db.session.commit()
 
-            if artist != old_artist or dance != old_dance:
+                set_or_add_rating(song, form.rating.data)
+
+                if artist != old_artist or dance != old_dance:
+                    delete_unused_old_entities(old_artist, old_dance)
+
+                flash('Sucessfully updated song')
+            elif form.delete_button.data:
+                db.session.delete(song)
+                db.session.commit()
+
                 delete_unused_old_entities(old_artist, old_dance)
 
-            flash('Sucessfully updated song')
-        elif form.delete_button.data:
-            db.session.delete(song)
-            db.session.commit()
+                flash('Sucessfully deleted song')
 
-            delete_unused_old_entities(old_artist, old_dance)
-
-            flash('Sucessfully deleted song')
-
-        return redirect(url_for('songs.home'))
+            return redirect(url_for('songs.home'))
 
     else:
         # it seems we are coming directly from the main page
@@ -118,6 +122,7 @@ def edit_song():
         form.title.data = song.title
         form.artist_name.data = song.artist.name
         form.dance_name.data = song.dance.name
+        form.rating.data = song.get_user_rating(g.user)
 
     return render_template("songs/edit_song.html", form=form)
 
