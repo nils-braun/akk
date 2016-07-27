@@ -1,16 +1,23 @@
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, HiddenField
+from wtforms.fields.core import BooleanField
 from wtforms.validators import DataRequired
 
 
-class DeleteArtistForm(Form):
+class DeletionForm(Form):
+    """
+    Form to delete a dance or an artist and every attached song.
+    """
+    sure_to_delete = BooleanField("Force delete", default=False)
+
+class DeleteArtistForm(DeletionForm):
     """
     Form to delete an artist and every attached song.
     """
     name = StringField('Artist Name', [DataRequired()])
 
 
-class DeleteDanceForm(Form):
+class DeleteDanceForm(DeletionForm):
     """
     Form to delete a dance and every attached song.
     """

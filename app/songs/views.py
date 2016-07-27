@@ -32,18 +32,7 @@ def delete_artist():
     """
     Delete artist form
     """
-    form = DeleteArtistForm(request.form)
-    if form.validate_on_submit():
-        artist = Artist.query.filter_by(name=form.name.data).first()
-        if artist:
-            db.session.delete(artist)
-            db.session.commit()
-
-            flash('Sucessfully deleted %s' % artist.name)
-            return redirect(url_for('songs.home'))
-
-        flash('No artist with this name', 'error-message')
-    return render_template("songs/delete_artist.html", form=form)
+    return delete_entity(DeleteArtistForm, Artist, "artist", "artist_id")
 
 
 @mod.route('/delete_dance/', methods=['GET', 'POST'])
@@ -52,18 +41,37 @@ def delete_dance():
     """
     Delete dance form
     """
-    form = DeleteDanceForm(request.form)
+    return delete_entity(DeleteDanceForm, Dance, "dance", "dance_id")
+
+
+def delete_entity(FormClass, DataClass, name, song_argument):
+    form = FormClass(request.form)
+    data_to_delete = []
     if form.validate_on_submit():
-        dance = Dance.query.filter_by(name=form.name.data).first()
-        if dance:
-            db.session.delete(dance)
-            db.session.commit()
+        entity = DataClass.query.filter_by(name=form.name.data).first()
+        if entity:
+            filter_dict={song_argument: entity.id}
+            data_to_delete = Song.query.filter_by(**filter_dict).all()
 
-            flash('Sucessfully deleted %s' % dance.name)
-            return redirect(url_for('songs.home'))
+            if form.sure_to_delete.data:
 
-        flash('No dance with this name', 'error-message')
-    return render_template("songs/delete_dance.html", form=form)
+                old_artists_and_dances = [(song.artist, song.dance) for song in data_to_delete]
+
+                db.session.delete(entity)
+                db.session.commit()
+
+                for artist, dance in old_artists_and_dances:
+                    delete_unused_old_entities(artist, dance)
+
+                flash('Sucessfully deleted %s' % entity.name)
+                return redirect(url_for('songs.home'))
+            else:
+                flash('Are you sure you want to delete?')
+                form.sure_to_delete.data = True
+
+        else:
+            flash('No %s with this name' % name, 'error-message')
+    return render_template("songs/deletion_form.html", form=form, data_to_delete=data_to_delete)
 
 
 @mod.route('/create_song/', methods=['GET', 'POST'])
