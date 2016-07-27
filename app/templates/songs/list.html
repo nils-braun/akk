@@ -18,7 +18,7 @@
                     <td>{{ song.artist.name }}</td>
                     <td>{{ song.dance.name }}</td>
                     <td>{{ song.get_rating() }}</td>
-                    <td>{{ song.get_user_rating(user) }}</td>
+                    <td>{{ song.get_user_rating_as_string(user) }}</td>
                     <td>{{ song.get_number_of_playlists() }}</td>
                 </tr>
             {% endfor %}
