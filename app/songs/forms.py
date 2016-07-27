@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, SubmitField, HiddenField, IntegerField
+from wtforms import StringField, SubmitField, HiddenField, IntegerField, TextAreaField
 from wtforms.fields.core import BooleanField
 from wtforms.validators import DataRequired
 
@@ -38,6 +38,7 @@ class EditSongForm(CreateSongForm):
     Refined form for editing songs.
     """
     rating = IntegerField()
+    note = TextAreaField()
     edit_button = SubmitField()
     delete_button = SubmitField()
     song_id = HiddenField(default=None)

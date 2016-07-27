@@ -8,7 +8,7 @@ class Dance(db.Model):
     """
     __tablename__ = 'songs_dances'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), unique=True, nullable=False)
+    name = db.Column(db.Unicode(250), unique=True, nullable=False)
 
     def __init__(self, name):
         """
@@ -26,7 +26,7 @@ class Artist(db.Model):
     """
     __tablename__ = 'songs_artists'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), unique=True, nullable=False)
+    name = db.Column(db.Unicode(250), unique=True, nullable=False)
 
     def __init__(self, name):
         """
@@ -44,7 +44,8 @@ class Song(db.Model):
     """
     __tablename__ = "songs_songs"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(350), nullable=False)
+    title = db.Column(db.Unicode(350), nullable=False)
+    note = db.Column(db.Unicode(1000), nullable=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('songs_artists.id'))
     # Delete when artists is deleted
     artist = db.relationship(Artist, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))

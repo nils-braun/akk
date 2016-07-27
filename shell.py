@@ -15,19 +15,19 @@ def create_db():
     """
     db.create_all()
 
-    user = User("test", "test@test.com", "pbkdf2:sha1:1000$VUu0UWDW$211afd0957df48d23553a119668dbc331b84c8cd")
+    user = User(u"test", "test@test.com", "pbkdf2:sha1:1000$VUu0UWDW$211afd0957df48d23553a119668dbc331b84c8cd")
     db.session.add(user)
     db.session.commit()
 
-    artist = Artist("b")
+    artist = Artist(u"b")
     db.session.add(artist)
     db.session.commit()
 
-    dance = Dance("c")
+    dance = Dance(u"c")
     db.session.add(dance)
     db.session.commit()
 
-    db.session.add(Song("a", artist, dance, user))
+    db.session.add(Song(u"a", artist, dance, user))
     db.session.commit()
 
 print("Type create_db() to create the DB.")

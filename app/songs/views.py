@@ -89,6 +89,7 @@ def edit_song():
                 song.artist_id = artist.id
                 song.dance_id = dance.id
                 song.title = form.title.data
+                song.note = form.note.data
 
                 db.session.merge(song)
                 db.session.commit()
@@ -123,6 +124,7 @@ def edit_song():
         form.artist_name.data = song.artist.name
         form.dance_name.data = song.dance.name
         form.rating.data = song.get_user_rating(g.user)
+        form.note.data = song.note
 
     return render_template("songs/edit_song.html", form=form)
 

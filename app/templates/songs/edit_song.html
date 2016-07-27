@@ -2,6 +2,7 @@
 {% block buttons %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.rating, class="input") }}
+    {{ render_field(form.note, class="input text") }}
     {{ form.song_id() }}
     {{ form.edit_button(class="button green", value="Save") }}
     {{ form.delete_button(class="button red", value="Delete Song") }}
