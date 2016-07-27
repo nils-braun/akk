@@ -1,5 +1,5 @@
 from app import db
-from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
+from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm, SearchSongForm
 from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
     set_or_add_rating
 from app.songs.models import Artist, Dance, Song
@@ -10,11 +10,23 @@ from flask import Blueprint, request, render_template, flash, g, session, redire
 mod = Blueprint('songs', __name__, url_prefix='/songs')
 
 
-@mod.route('/home/')
+@mod.route('/home/', methods=['POST', 'GET'])
 @requires_login
 def home():
-    songs = Song.query.all()
-    return render_template("songs/list.html", user=g.user, songs=songs)
+    # TODO: User get here!
+    form = SearchSongForm(request.form)
+    if form.validate_on_submit():
+        query_string = form.query.data
+
+        songs_with_queried_title = Song.query.filter(Song.title.contains(query_string)).all()
+        songs_with_queried_artist = Song.query.join(Artist).filter(Artist.name.contains(query_string)).all()
+        songs_with_queried_dance = Song.query.join(Dance).filter(Dance.name.contains(query_string)).all()
+
+
+        songs = songs_with_queried_title + songs_with_queried_artist + songs_with_queried_dance
+    else:
+        songs = Song.query.all()
+    return render_template("songs/list.html", user=g.user, songs=songs, form=form)
 
 
 @mod.before_request
@@ -127,5 +139,3 @@ def edit_song():
         form.note.data = song.note
 
     return render_template("songs/edit_song.html", form=form)
-
-

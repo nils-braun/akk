@@ -3,6 +3,9 @@ from wtforms import StringField, SubmitField, HiddenField, IntegerField, TextAre
 from wtforms.fields.core import BooleanField
 from wtforms.validators import DataRequired
 
+class SearchSongForm(Form):
+    query = StringField()
+
 
 class DeletionForm(Form):
     """
