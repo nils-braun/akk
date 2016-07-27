@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    {% from "forms/macros.html" import render_field %}
+    <form method="POST" action="." class="form">
+        {{ form.csrf_token }}
+        {% block form_content %}
+        {% endblock %}
+        {% block abort_buttons %}
+            <input type="button"
+                   onclick="window.location='{{ url_for("songs.home") }}';"
+                   value="Abort" class="button red">
+        {% endblock %}
+    </form>
+{% endblock %}

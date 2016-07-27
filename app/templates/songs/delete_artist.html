@@ -1,9 +1,6 @@
-{% extends "base.html" %}
-{% block content %}
-  {% from "forms/macros.html" import render_field %}
-  <form method="POST" action="." class="form">
-    {{ form.csrf_token }}
+{% extends "songs/base_form.html" %}
+{% block form_content %}
+    {% from "forms/macros.html" import render_field %}
     {{ render_field(form.name, class="input text") }}
     <input type="submit" value="Delete" class="button red">
-  </form>
 {% endblock %}

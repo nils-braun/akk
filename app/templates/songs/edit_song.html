@@ -1,6 +1,7 @@
 {% extends "songs/create_song.html" %}
 {% block buttons %}
-  {% from "forms/macros.html" import render_field %}
-    {{ form.edit_button(class="input") }}
-    {{ form.delete_button(class="input") }}
+    {% from "forms/macros.html" import render_field %}
+    {{ form.song_id() }}
+    {{ form.edit_button(class="button green", value="Save") }}
+    {{ form.delete_button(class="button red", value="Delete Song") }}
 {% endblock %}
