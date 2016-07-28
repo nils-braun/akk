@@ -11,7 +11,8 @@ class DeletionForm(Form):
     """
     Form to delete a dance or an artist and every attached song.
     """
-    sure_to_delete = BooleanField("Force delete", default=False)
+    sure_to_delete = SubmitField("Force delete")
+    unsure_to_delete = SubmitField("Show Usage")
 
 class DeleteArtistForm(DeletionForm):
     """
