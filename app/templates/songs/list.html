@@ -6,15 +6,14 @@
         <input type="submit" value="Search">
     </form>
 
-    <table>
+    <table id="song-list">
         <thead>
             <tr>
                 <td>Song Title</td>
                 <td>Artist Name</td>
                 <td>Dance Name</td>
-                <td>Rating</td>
-                <td>My Rating</td>
-                <td>Number of Playlists</td>
+                <td colspan="2" width="10%">Rating</td>
+                <td width="10%">Playlists</td>
             </tr>
         </thead>
         <tbody>
@@ -23,8 +22,8 @@
                     <td>{{ song.title }}</td>
                     <td>{{ song.artist.name }}</td>
                     <td>{{ song.dance.name }}</td>
-                    <td>{{ song.get_rating() }}</td>
-                    <td>{{ song.get_user_rating_as_string(user) }}</td>
+                    <td width="5%">{{ song.get_rating() }}</td>
+                    <td width="5%">({{ song.get_user_rating_as_string(user) }})</td>
                     <td>{{ song.get_number_of_playlists() }}</td>
                 </tr>
             {% endfor %}
