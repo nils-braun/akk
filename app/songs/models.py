@@ -72,7 +72,7 @@ class Song(db.Model):
         if user_rating > 0:
             return user_rating
         else:
-            return "not rated"
+            return "nr"
 
     def get_number_of_playlists(self):
         # TODO

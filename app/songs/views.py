@@ -13,7 +13,7 @@ mod = Blueprint('songs', __name__, url_prefix='/songs')
 @mod.route('/home/', methods=['POST', 'GET'])
 @requires_login
 def home():
-    # TODO: User get here!
+    # TODO: Use get here!
     form = SearchSongForm(request.form)
     if form.validate_on_submit():
         query_string = form.query.data
@@ -22,8 +22,7 @@ def home():
         songs_with_queried_artist = Song.query.join(Artist).filter(Artist.name.contains(query_string)).all()
         songs_with_queried_dance = Song.query.join(Dance).filter(Dance.name.contains(query_string)).all()
 
-
-        songs = songs_with_queried_title + songs_with_queried_artist + songs_with_queried_dance
+        songs = set(songs_with_queried_title + songs_with_queried_artist + songs_with_queried_dance)
     else:
         songs = Song.query.all()
     return render_template("songs/list.html", user=g.user, songs=songs, form=form)
