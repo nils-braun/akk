@@ -1,31 +1,47 @@
 <html>
-  <head>
-    <title>{% block title %}AKK - Dancemusic Management{% endblock %}</title>
-    {% block css %}
-    <link rel="stylesheet" href="/static/css/reset-min.css" />
-    <link rel="stylesheet" href="/static/css/main.css" />
-    {% endblock %}
-    {% block script %}
-    <script src="/static/js/main.js" type="text/javascript"></script>
-    {% endblock %}
-  </head>
-  <body>
-    <div id="content-wrapper">
-        <div id="content">{% block content %}{% endblock %}</div>
-    </div>
-    <div id="messages-wrap">
-      <div id="messages">
-        {% for category, msg in get_flashed_messages(with_categories=true) %}
-          <p class="message flash-{{ category }}">{{ msg }}</p>
-        {% endfor %}
-      </div>
-    </div>
-    <div id="footer">
-        {% block footer %}
-            <a href="{{ url_for("songs.home") }}">Home</a>
-            <a href="{{ url_for("users.logout") }}">Logout</a>
-            <a href="{{ url_for("users.register") }}">Register</a>
+    <head>
+        <title>{% block title %}AKK - Dancemusic Management{% endblock %}</title>
+        {% block css %}
+            <link rel="stylesheet" href="/static/css/reset-min.css"/>
+            <link rel="stylesheet" href="/static/css/main.css"/>
         {% endblock %}
-    </div>
-  </body>
+        {% block script %}
+            <script src="/static/js/main.js" type="text/javascript"></script>
+        {% endblock %}
+    </head>
+    <body>
+        <div id="header">
+            {% block header %}
+                {% if user is defined %}
+                    <a href="{{ url_for("songs.home") }}">Home</a>
+                    <a href="{{ url_for("users.logout") }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for("users.login") }}">Login</a>
+                {% endif %}
+                <a href="{{ url_for("users.register") }}">Register</a>
+            {% endblock %}
+        </div>
+        <div id="content-wrapper">
+            <div id="{% block content_id %}content{% endblock %}">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+        <div id="messages-wrap">
+            <div id="messages">
+                {% for category, msg in get_flashed_messages(with_categories=true) %}
+                    <p class="message flash-{{ category }}">{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="footer">
+            {% block footer %}
+                {% if user is defined %}
+                    <a href="{{ url_for("users.logout") }}">Logout (Currently logged in as {{ user.name }})</a>
+                {% else %}
+                    <a href="{{ url_for("users.login") }}">Login (Currently not logged in)</a>
+                {% endif %}
+            {% endblock %}
+        </div>
+    </body>
 </html>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block content_id %}content-songlist{% endblock %}
 {% block content %}
     <form method="POST" action="." class="form">
         {{ form.csrf_token }}
@@ -32,5 +33,4 @@
     <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
     <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
     <a href="{{ url_for('songs.create_song') }}">Add Song</a>
-    <a href="{{ url_for('users.logout') }}">Logout</a>
 {% endblock %}
