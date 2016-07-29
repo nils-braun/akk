@@ -43,3 +43,15 @@
     width: 100%;
     margin: 0;
 }
+
+#control-view {
+    display: table;
+    width: 100%;
+    text-align: center;
+    table-layout: fixed;
+    padding: 10px 0;
+}
+
+#control-view a {
+    display: table-cell;
+}

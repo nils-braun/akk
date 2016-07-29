@@ -17,6 +17,12 @@
         </table>
     </form>
 
+    <div id="control-view">
+        <a href="{{ url_for('songs.create_song') }}">Add Song</a>
+        <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
+        <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
+    </div>
+
     <table id="song-list">
         <thead>
             <tr>
@@ -40,7 +46,4 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
-    <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
-    <a href="{{ url_for('songs.create_song') }}">Add Song</a>
 {% endblock %}
