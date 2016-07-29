@@ -126,8 +126,14 @@ def edit_song():
             db.session.commit()
 
             if form.rating.data != "nr":
-                # FIXME: This is not possible in the moment!
-                set_or_add_rating(song, form.rating.data)
+                try:
+                    int(form.rating.data)
+                except:
+                    # FIXME: Create a better widget for this.
+                    flash("Please insert a numerical rating.", "error-message")
+                    return render_template_with_user("songs/edit_song.html", form=form)
+                else:
+                    set_or_add_rating(song, form.rating.data)
 
             if artist != old_artist or dance != old_dance:
                 delete_unused_old_entities(old_artist, old_dance)

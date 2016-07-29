@@ -67,7 +67,7 @@ class EditSongForm(CreateSongForm):
     """
     Refined form for editing songs.
     """
-    rating = IntegerField()
+    rating = StringField()
     note = TextAreaField()
     edit_button = SubmitField()
     delete_button = SubmitField()
