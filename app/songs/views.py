@@ -24,6 +24,8 @@ def home():
         songs = set(songs_with_queried_title + songs_with_queried_artist + songs_with_queried_dance)
     else:
         songs = Song.query.all()
+
+    songs = sorted(songs, key=lambda song: song.get_rating(), reverse=True)
     return render_template_with_user("songs/list.html", songs=songs, form=form)
 
 
