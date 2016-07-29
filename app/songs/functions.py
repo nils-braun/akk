@@ -70,7 +70,7 @@ def get_or_add_artist_and_dance(form):
 
 
 def set_or_add_rating(song, rating_value):
-    query = Rating.query.filter_by(song_id=song.id)
+    query = Rating.query.filter_by(song_id=song.id, user_id=g.user.id)
 
     if query.count() == 0:
         # Add new rating
