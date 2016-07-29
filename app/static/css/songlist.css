@@ -1,0 +1,27 @@
+#content-songlist {
+    width: auto;
+}
+
+#song-list {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+#song-list td {
+    text-align: center;
+    padding: 5px 0;
+    border-bottom: 1pt solid darkgray;
+}
+
+#song-list tbody tr:hover td {
+    background-color: darkgray;
+    cursor: pointer;
+}
+
+#song-list thead td {
+    padding: 10px 0;
+    background-color: lightgray;
+    border: 1pt solid darkgray;
+}
