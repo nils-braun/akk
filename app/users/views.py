@@ -24,6 +24,8 @@ def logout():
         del g.user
         del session["user_id"]
 
+        flash("Successfully logged out.")
+
     return redirect(url_for("users.login"))
 
 
