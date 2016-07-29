@@ -91,34 +91,35 @@ def edit_song():
         old_artist = song.artist
         old_dance = song.dance
 
-        if form.validate():
-            if form.edit_button.data:
+        if form.edit_button.data and form.validate():
 
-                artist, dance = get_or_add_artist_and_dance(form)
+            artist, dance = get_or_add_artist_and_dance(form)
 
-                song.artist_id = artist.id
-                song.dance_id = dance.id
-                song.title = form.title.data
-                song.note = form.note.data
+            song.artist_id = artist.id
+            song.dance_id = dance.id
+            song.title = form.title.data
+            song.note = form.note.data
 
-                db.session.merge(song)
-                db.session.commit()
+            db.session.merge(song)
+            db.session.commit()
 
-                if form.rating.data != "nr":
-                    # FIXME: This is not possible in the moment!
-                    set_or_add_rating(song, form.rating.data)
+            if form.rating.data != "nr":
+                # FIXME: This is not possible in the moment!
+                set_or_add_rating(song, form.rating.data)
 
-                if artist != old_artist or dance != old_dance:
-                    delete_unused_old_entities(old_artist, old_dance)
-
-                flash('Sucessfully updated song')
-            elif form.delete_button.data:
-                db.session.delete(song)
-                db.session.commit()
-
+            if artist != old_artist or dance != old_dance:
                 delete_unused_old_entities(old_artist, old_dance)
 
-                flash('Sucessfully deleted song')
+            flash('Sucessfully updated song')
+
+            return redirect(url_for('songs.home'))
+        elif form.delete_button.data:
+            db.session.delete(song)
+            db.session.commit()
+
+            delete_unused_old_entities(old_artist, old_dance)
+
+            flash('Sucessfully deleted song')
 
             return redirect(url_for('songs.home'))
 
