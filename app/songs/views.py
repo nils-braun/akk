@@ -105,7 +105,9 @@ def edit_song():
                 db.session.merge(song)
                 db.session.commit()
 
-                set_or_add_rating(song, form.rating.data)
+                if form.rating.data != "nr":
+                    # FIXME: This is not possible in the moment!
+                    set_or_add_rating(song, form.rating.data)
 
                 if artist != old_artist or dance != old_dance:
                     delete_unused_old_entities(old_artist, old_dance)

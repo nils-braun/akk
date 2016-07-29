@@ -57,14 +57,18 @@ class Song(db.Model):
     creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
 
     def get_rating(self):
-        return sum(rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value > 0)
+        ratings = [rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value != "nr"]
+        if len(ratings) > 0:
+            return 1.0 * sum(ratings) / len(ratings)
+        else:
+            return "nr"
 
     def get_user_rating(self, user):
         query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
         if query.count() > 0:
             return query.one().value
         else:
-            return -1
+            return "nr"
 
     def get_user_rating_as_string(self, user):
         user_rating = self.get_user_rating(user)
