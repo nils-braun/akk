@@ -1,3 +1,5 @@
+import json
+
 from app import db
 from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm, SearchSongForm
 from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
@@ -27,6 +29,24 @@ def home():
 
     songs = sorted(songs, key=lambda song: song.get_rating(), reverse=True)
     return render_template_with_user("songs/list.html", songs=songs, form=form)
+
+@mod.route("/completion/", methods=['GET'])
+@requires_login
+def completion():
+    source_column = request.args["source"]
+    term = request.args["term"]
+
+    if source_column == "dance":
+        result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).all()]
+    elif source_column == "artist":
+        result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
+    elif source_column == "all":
+        result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
+        result += [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).all()]
+        result += [song.title for song in Song.query.filter(Song.title.contains(term)).all()]
+    else:
+        return render_template_with_user("404.html"), 404
+    return json.dumps([{"label": label} for label in set(result)])
 
 
 @mod.before_request
@@ -132,7 +152,7 @@ def edit_song():
         song = Song.query.filter_by(id=song_id).first()
 
         if not song:
-            return render_template_with_user("404.html")
+            return render_template_with_user("404.html"), 404
 
         form.song_id.data = song_id
         form.title.data = song.title

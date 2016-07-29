@@ -20,16 +20,18 @@ $.widget("custom.completion", {
 			}
 
 		});
-		inputElement.keypress(function(event) {
-			if(event.keyCode == 13) {
-				$(this).autocomplete("close");
-				$(".ui-complete").hide();
-				ownElement._trigger("result", ownElement, {value: ownElement.value(), element: this});
-			}
-		});
 	}
 });
 
 $(document).ready(function() {
-   $(".input").completion();
+   $(".completion").each(function(el) {
+	   var classes = this.className.split(/\s+/);
+	   for (var singleClassID in classes) {
+		   var singleClass = classes[singleClassID];
+		   if(singleClass.startsWith("completion-")) {
+			   var column = singleClass.substring("completion-".length);
+			   $(this).completion({column: column});
+		   }
+	   }
+   });
 });
