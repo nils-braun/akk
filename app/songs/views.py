@@ -13,9 +13,8 @@ mod = Blueprint('songs', __name__, url_prefix='/songs')
 @mod.route('/home/', methods=['POST', 'GET'])
 @requires_login
 def home():
-    # TODO: Use get here!
-    form = SearchSongForm(request.form)
-    if form.validate_on_submit():
+    form = SearchSongForm(request.args)
+    if form.validate():
         query_string = form.query.data
 
         songs_with_queried_title = Song.query.filter(Song.title.contains(query_string)).all()
