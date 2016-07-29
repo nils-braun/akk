@@ -1,4 +1,5 @@
 from app import db
+import app.songs.constants as SONGS
 from app.users.models import User
 
 
@@ -57,26 +58,33 @@ class Song(db.Model):
     creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
 
     def get_rating(self):
-        ratings = [rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value != "nr"]
+        ratings = [rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value != SONGS.NOT_RATED_STRING]
         if len(ratings) > 0:
             return 1.0 * sum(ratings) / len(ratings)
         else:
-            return "nr"
+            return SONGS.NOT_RATED_STRING
+
+    def get_rating_as_string(self):
+        rating = self.get_rating()
+        if rating != SONGS.NOT_RATED_STRING:
+            return "%.1f" % rating
+        else:
+            return rating
 
     def get_user_rating(self, user):
         query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
         if query.count() > 0:
             return query.one().value
         else:
-            return "nr"
+            return SONGS.NOT_RATED_STRING
 
     def get_user_rating_as_string(self, user):
         user_rating = self.get_user_rating(user)
 
-        if user_rating > 0:
-            return user_rating
+        if user_rating != SONGS.NOT_RATED_STRING:
+            return "%d" % user_rating
         else:
-            return "nr"
+            return SONGS.NOT_RATED_STRING
 
     def get_number_of_playlists(self):
         # TODO

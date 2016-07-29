@@ -1,0 +1,1 @@
+NOT_RATED_STRING = "nr"
