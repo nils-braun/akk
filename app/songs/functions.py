@@ -31,7 +31,7 @@ def delete_entity(FormClass, DataClass, name, song_argument):
 
         else:
             flash('No %s with this name' % name, 'error-message')
-    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete, user=g.user)
+    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete)
 
 
 def delete_unused_old_entities(old_artist, old_dance):
