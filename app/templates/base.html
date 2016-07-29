@@ -8,6 +8,7 @@
         {% endblock %}
         {% block script %}
             <script src="/static/js/main.js" type="text/javascript"></script>
+            <script src="https://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript"></script>
         {% endblock %}
     </head>
     <body>
@@ -28,13 +29,6 @@
                 {% endblock %}
             </div>
         </div>
-        <div id="messages-wrap">
-            <div id="messages">
-                {% for category, msg in get_flashed_messages(with_categories=true) %}
-                    <p class="message flash-{{ category }}">{{ msg }}</p>
-                {% endfor %}
-            </div>
-        </div>
         <div id="footer">
             {% block footer %}
                 {% if user is defined %}
@@ -44,5 +38,20 @@
                 {% endif %}
             {% endblock %}
         </div>
+        {% if get_flashed_messages(with_categories=true)|length > 0 %}
+        <div id="messages-wrap">
+            <script type="text/javascript">
+                setTimeout(function() {
+                    $("#messages-wrap").animate({bottom: "-=1000"}, 1000);
+                }, 3000);
+                $("#messages-wrap").fadeIn(200);
+            </script>
+            <div id="messages">
+                {% for category, msg in get_flashed_messages(with_categories=true) %}
+                    <p class="message flash-{{ category }}">{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </body>
 </html>
