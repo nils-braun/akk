@@ -1,10 +1,9 @@
-from flask import Blueprint, request, render_template, flash, g, session, redirect, url_for
-from werkzeug import check_password_hash, generate_password_hash
-
 from app import db
+from app.users.decorators import render_template_with_user
 from app.users.forms import RegisterForm, LoginForm
 from app.users.models import User
-from app.users.decorators import requires_login
+from flask import Blueprint, request, flash, g, session, redirect, url_for
+from werkzeug import check_password_hash, generate_password_hash
 
 mod = Blueprint('users', __name__, url_prefix='/users')
 
@@ -22,7 +21,7 @@ def before_request():
 @mod.route('/logout/', methods=['GET', 'POST'])
 def logout():
     if g.user:
-        g.user = None
+        del g.user
         del session["user_id"]
 
     return redirect(url_for("users.login"))
@@ -34,6 +33,7 @@ def login():
     Login form
     """
     if g.user:
+        flash("You are already logged in!")
         return redirect(url_for("songs.home"))
 
     form = LoginForm(request.form)
@@ -55,7 +55,7 @@ def login():
             else:
                 return redirect(url_for('songs.home'))
         flash('Wrong email or password', 'error-message')
-    return render_template("users/login.html", form=form)
+    return render_template_with_user("users/login.html", form=form)
 
 
 @mod.route('/register/', methods=['GET', 'POST'])
@@ -78,4 +78,4 @@ def register():
         flash('Thanks for registering')
         # redirect user to the 'home' method of the user module.
         return redirect(url_for('songs.home'))
-    return render_template("users/register.html", form=form)
+    return render_template_with_user("users/register.html", form=form)

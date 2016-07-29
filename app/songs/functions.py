@@ -1,6 +1,7 @@
 from app import db
 from app.songs.models import Song, Dance, Artist, Rating
-from flask import request, flash, redirect, url_for, render_template, g
+from app.users.decorators import render_template_with_user
+from flask import request, flash, redirect, url_for, g
 
 
 def delete_entity(FormClass, DataClass, name, song_argument):
@@ -30,7 +31,7 @@ def delete_entity(FormClass, DataClass, name, song_argument):
 
         else:
             flash('No %s with this name' % name, 'error-message')
-    return render_template("songs/deletion_form.html", form=form, data_to_delete=data_to_delete)
+    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete, user=g.user)
 
 
 def delete_unused_old_entities(old_artist, old_dance):
