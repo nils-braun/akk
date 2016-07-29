@@ -1,10 +1,20 @@
 {% extends "base.html" %}
 {% block content_id %}content-songlist{% endblock %}
 {% block content %}
-    <form method="POST" action="." class="form">
+    <form method="GET" action="." class="form">
         {{ form.csrf_token }}
-        {{ form.query(class="input text") }}
-        <input type="submit" value="Search">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    {{ form.query(class="input text") }}
+                </td>
+                <td>
+                    <input type="submit" value="Search", class="button">
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </form>
 
     <table id="song-list">

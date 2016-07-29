@@ -25,3 +25,21 @@
     background-color: lightgray;
     border: 1pt solid darkgray;
 }
+
+#content-songlist form table {
+    width: 100%;
+}
+
+
+#content-songlist form table td {
+    padding: 0;
+}
+
+#content-songlist .input {
+    width: 100%;
+}
+
+#content-songlist .button {
+    width: 100%;
+    margin: 0;
+}
