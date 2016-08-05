@@ -11,6 +11,19 @@ class Dance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(250), unique=True, nullable=False)
 
+    @staticmethod
+    def get_or_add_dance(dance_name):
+        dance = Dance.query.filter_by(name=dance_name).first()
+        dance_created_new = False
+        if not dance:
+            dance = Dance(name=dance_name)
+            db.session.add(dance)
+            db.session.commit()
+
+            dance_created_new = True
+
+        return dance, dance_created_new
+
     def __init__(self, name):
         """
         Create a new dance.
@@ -28,6 +41,20 @@ class Artist(db.Model):
     __tablename__ = 'songs_artists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(250), unique=True, nullable=False)
+
+    @staticmethod
+    def get_or_add_artist(artist_name):
+        artist = Artist.query.filter_by(name=artist_name).first()
+        artist_created_new = False
+        if not artist:
+            artist = Artist(name=artist_name)
+            db.session.add(artist)
+            db.session.commit()
+
+            artist_created_new = True
+
+        return artist, artist_created_new
+
 
     def __init__(self, name):
         """

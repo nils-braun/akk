@@ -53,22 +53,17 @@ def get_or_add_artist_and_dance(form):
     Get the artist and the dance with the names form the form from the db.
     If they are not present, create new ones.
     """
-    dance = Dance.query.filter_by(name=form.dance_name.data).first()
-    if not dance:
-        dance = Dance(name=form.dance_name.data)
-        db.session.add(dance)
-        db.session.commit()
+    dance, dance_created_new = Dance.get_or_add_dance(form.dance_name.data)
 
-        flash('No dance with the name {}. Added new.'.format(dance.name))
-    artist = Artist.query.filter_by(name=form.artist_name.data).first()
-    if not artist:
-        artist = Artist(name=form.artist_name.data)
-        db.session.add(artist)
-        db.session.commit()
+    if dance_created_new:
+        flash("No dance with the name {dance_name}. Created a new one.".format(dance_name=dance.name))
 
-        flash('No artist with the name {}. Added new.'.format(artist.name))
+    artist, artist_created_new = Artist.get_or_add_artist(form.artist_name.data)
+
+    if artist_created_new:
+        flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
+
     return artist, dance
-
 
 def set_or_add_rating(song, rating_value):
     query = Rating.query.filter_by(song_id=song.id, user_id=g.user.id)
