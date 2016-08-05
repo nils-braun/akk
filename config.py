@@ -7,6 +7,7 @@ ADMINS = frozenset(['youremail@yourdomain.com'])
 SECRET_KEY = 'This string will be replaced with a proper key in production.'
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 DATABASE_CONNECT_OPTIONS = {}
 
 WTF_CSRF_ENABLED = True
