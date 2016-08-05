@@ -47,6 +47,8 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(350), nullable=False)
     note = db.Column(db.Unicode(1000), nullable=True)
+    path = db.Column(db.Unicode(500), nullable=False, default="")
+
     artist_id = db.Column(db.Integer, db.ForeignKey('songs_artists.id'))
     # Delete when artists is deleted
     artist = db.relationship(Artist, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
