@@ -12,6 +12,16 @@ from flask import Blueprint, request, flash, g, session, redirect, url_for
 mod = Blueprint('songs', __name__, url_prefix='/songs')
 
 
+@mod.before_request
+def before_request():
+    """
+    pull user's profile from the database before every request are treated
+    """
+    g.user = None
+    if 'user_id' in session:
+        g.user = User.query.get(session['user_id'])
+
+
 @mod.route('/home/', methods=['POST', 'GET'])
 @requires_login
 def home():
@@ -31,6 +41,7 @@ def home():
     songs = sorted(songs, key=lambda song: float(song.get_rating_as_number()), reverse=True)
     return render_template_with_user("songs/list.html", songs=songs, form=form)
 
+
 @mod.route("/completion/", methods=['GET'])
 @requires_login
 def completion():
@@ -48,16 +59,6 @@ def completion():
     else:
         return render_template_with_user("404.html"), 404
     return json.dumps([{"label": label} for label in set(result)])
-
-
-@mod.before_request
-def before_request():
-    """
-    pull user's profile from the database before every request are treated
-    """
-    g.user = None
-    if 'user_id' in session:
-        g.user = User.query.get(session['user_id'])
 
 
 @mod.route('/delete_artist/', methods=['GET', 'POST'])
@@ -167,5 +168,6 @@ def edit_song():
         form.dance_name.data = song.dance.name
         form.rating.data = song.get_user_rating(g.user)
         form.note.data = song.note
+        form.path.data = song.path
 
     return render_template_with_user("songs/edit_song.html", form=form)

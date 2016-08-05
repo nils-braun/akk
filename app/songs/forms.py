@@ -71,4 +71,5 @@ class EditSongForm(CreateSongForm):
     note = TextAreaField()
     edit_button = SubmitField()
     delete_button = SubmitField()
+    path = StringField("Path")
     song_id = HiddenField(default=None)

@@ -3,6 +3,7 @@
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.rating, class="input rating") }}
     {{ render_field(form.note, class="input textarea") }}
+    {{ render_field(form.path, class="input text readonly", readonly=true) }}
     {{ form.song_id() }}
     {{ form.edit_button(class="button green", value="Save") }}
     {{ form.delete_button(class="button red", value="Delete Song") }}

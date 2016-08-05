@@ -12,6 +12,7 @@ form {
     height: 40px;
     margin: 10px 0;
     font-size: 14pt;
+    padding-left: 2pt;
 }
 
 .input.checkbox {
@@ -55,4 +56,10 @@ form {
 
 textarea.input {
     max-lines: 10;
+}
+
+.input.readonly {
+    background: lightgray;
+    border: none;
+    padding-left: 2pt;
 }
