@@ -15,6 +15,7 @@ mod = Blueprint('songs', __name__, url_prefix='/songs')
 @mod.route('/home/', methods=['POST', 'GET'])
 @requires_login
 def home():
+    # TODO: Fix performance issues and make dynamic!
     form = SearchSongForm(request.args)
     if form.validate():
         query_string = form.query.data
@@ -27,7 +28,7 @@ def home():
     else:
         songs = Song.query.all()
 
-    songs = sorted(songs, key=lambda song: song.get_rating(), reverse=True)
+    songs = sorted(songs, key=lambda song: float(song.get_rating_as_number()), reverse=True)
     return render_template_with_user("songs/list.html", songs=songs, form=form)
 
 @mod.route("/completion/", methods=['GET'])

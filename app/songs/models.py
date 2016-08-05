@@ -57,6 +57,14 @@ class Song(db.Model):
     # Delete when user is deleted
     creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
 
+    def get_rating_as_number(self):
+        rating = self.get_rating()
+
+        if rating != SONGS.NOT_RATED_STRING:
+            return float(rating)
+        else:
+            return -999
+
     def get_rating(self):
         ratings = [rating.value for rating in Rating.query.filter_by(song_id=self.id).all() if rating.value != SONGS.NOT_RATED_STRING]
         if len(ratings) > 0:
