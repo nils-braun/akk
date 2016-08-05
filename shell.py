@@ -30,5 +30,7 @@ def create_db():
     db.session.add(Song(u"a", artist, dance, user))
     db.session.commit()
 
-print("Type create_db() to create the DB.")
-os.environ['PYTHONINSPECT'] = 'True'
+
+if __name__ == '__main__':
+    print("Type create_db() to create the DB.")
+    os.environ['PYTHONINSPECT'] = 'True'
