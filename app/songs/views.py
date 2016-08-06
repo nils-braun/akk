@@ -64,8 +64,8 @@ def search():
     songs_with_rating = songs_with_queried_content\
         .outerjoin(average_rating_for_songs, Song.id==average_rating_for_songs.c.song_id)\
         .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id)\
-        .with_entities(Song, average_rating_for_songs.c.rating.label("rating"), user_rating_for_songs.c.user_rating)\
-        .order_by(desc("rating"))
+        .with_entities(Song, average_rating_for_songs.c.rating.label("rating"), user_rating_for_songs.c.user_rating.label("user_rating"))\
+        .order_by(desc("rating"), desc("user_rating"), Dance.name, Song.title)
 
     songs = songs_with_rating.limit(page_size).offset(page*page_size).all()
 
