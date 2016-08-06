@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content_id %}content-songlist{% endblock %}
+{% block content %}
+    <script type="application/javascript">
+        function make_search_query(query, page) {
+            if(typeof page === "undefined") {
+                $("#song-list").find("tbody").html("");
+                make_search_query(query, 0);
+            } else {
+                $.get("{{ url_for("songs.search") }}", {query: query, page: page}, function (data) {
+                    if (data.length == 0) {
+                        //window.history.pushState({"html": $("#song-list").find("tbody").html()}, "Title", "?query=" + query);
+                    } else {
+                        $("#song-list").find("tbody").append(data);
+                        make_search_query(query, page + 1);
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function() {
+            make_search_query("{{ query }}");
+        });
+    </script>
+
+    <form class="form" id="search_form">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <input type="text" id="query" name="query" class="input text completion completion-all" value="{{ query }}">
+                </td>
+                <td>
+                    <input type="submit" value="Search" class="button">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <div id="control-view">
+        <a href="{{ url_for('songs.create_song') }}">Add Song</a>
+        <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
+        <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
+    </div>
+
+    <table id="song-list">
+        <thead>
+            <tr>
+                <td>Song Title</td>
+                <td>Artist Name</td>
+                <td>Dance Name</td>
+                <td colspan="2" width="10%">Rating</td>
+                <td width="10%">Playlists</td>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+{% endblock %}

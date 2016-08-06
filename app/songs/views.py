@@ -1,10 +1,12 @@
 import json
 
+from sqlalchemy import func
+
 from app import db
 from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm, SearchSongForm
 from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
     set_or_add_rating
-from app.songs.models import Artist, Dance, Song
+from app.songs.models import Artist, Dance, Song, Rating
 from app.users.decorators import requires_login, render_template_with_user
 from app.users.models import User
 from flask import Blueprint, request, flash, g, session, redirect, url_for
@@ -22,24 +24,41 @@ def before_request():
         g.user = User.query.get(session['user_id'])
 
 
-@mod.route('/home/', methods=['POST', 'GET'])
+@mod.route('/home/', methods=['GET'])
 @requires_login
 def home():
-    # TODO: Fix performance issues and make dynamic!
-    form = SearchSongForm(request.args)
-    if form.validate():
-        query_string = form.query.data
-
-        songs_with_queried_title = Song.query.filter(Song.title.contains(query_string)).all()
-        songs_with_queried_artist = Song.query.join(Artist).filter(Artist.name.contains(query_string)).all()
-        songs_with_queried_dance = Song.query.join(Dance).filter(Dance.name.contains(query_string)).all()
-
-        songs = set(songs_with_queried_title + songs_with_queried_artist + songs_with_queried_dance)
+    if "query" in request.args:
+        query = request.args["query"]
     else:
-        songs = Song.query.all()
+        query = ""
+
+    return render_template_with_user("songs/home.html", query=query)
+
+
+@mod.route('/search/', methods=['GET'])
+@requires_login
+def search():
+    if "page_size" in request.args:
+        page_size = int(request.args["page_size"])
+    else:
+        page_size = 50
+
+    if "page" in request.args:
+        page = int(request.args["page"])
+    else:
+        page = 0
+
+    query_string = request.args["query"]
+
+    filter_condition = Artist.name.contains(query_string) | Dance.name.contains(query_string) | Song.title.contains(query_string)
+    songs_with_queried_artist = Song.query.join(Artist, Dance).filter(filter_condition)
+
+    songs = songs_with_queried_artist
+
+    songs = songs.limit(page_size).offset(page*page_size).all()
 
     songs = sorted(songs, key=lambda song: float(song.get_rating_as_number()), reverse=True)
-    return render_template_with_user("songs/list.html", songs=songs, form=form)
+    return render_template_with_user("songs/search_ajax.html", songs=songs)
 
 
 @mod.route("/completion/", methods=['GET'])
