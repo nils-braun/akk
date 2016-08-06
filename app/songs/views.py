@@ -82,14 +82,14 @@ def completion():
     term = request.args["term"]
 
     if source_column == "dance":
-        result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).all()]
+        result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
     elif source_column == "artist":
-        result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
+        result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
     elif source_column == "all":
         # TODO: Make faster
-        result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
-        result += [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).all()]
-        result += [song.title for song in Song.query.filter(Song.title.contains(term)).all()]
+        result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
+        result += [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
+        result += [song.title for song in Song.query.filter(Song.title.contains(term)).limit(10).all()]
     else:
         return render_template_with_user("404.html"), 404
     return json.dumps([{"label": label} for label in set(result)])
