@@ -1,5 +1,6 @@
 import json
 
+from sqlalchemy import desc
 from sqlalchemy import func
 
 from app import db
@@ -41,7 +42,7 @@ def search():
     if "page_size" in request.args:
         page_size = int(request.args["page_size"])
     else:
-        page_size = 50
+        page_size = 100
 
     if "page" in request.args:
         page = int(request.args["page"])
@@ -50,14 +51,27 @@ def search():
 
     query_string = request.args["query"]
 
-    filter_condition = Artist.name.contains(query_string) | Dance.name.contains(query_string) | Song.title.contains(query_string)
-    songs_with_queried_artist = Song.query.join(Artist, Dance).filter(filter_condition)
+    average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating"))\
+        .group_by(Rating.song_id).subquery()
+    user_rating_for_songs = Song.query.join(Rating).with_entities(Rating.song_id, Rating.value.label("user_rating"))\
+        .subquery()
 
-    songs = songs_with_queried_artist
+    filter_condition = (Artist.name.contains(query_string) |
+                        Dance.name.contains(query_string) |
+                        Song.title.contains(query_string))
 
-    songs = songs.limit(page_size).offset(page*page_size).all()
+    songs_with_queried_content = Song.query.join(Artist, Dance).filter(filter_condition)
+    songs_with_rating = songs_with_queried_content\
+        .outerjoin(average_rating_for_songs, Song.id==average_rating_for_songs.c.song_id)\
+        .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id)\
+        .with_entities(Song, average_rating_for_songs.c.rating.label("rating"), user_rating_for_songs.c.user_rating)\
+        .order_by(desc("rating"))
 
-    songs = sorted(songs, key=lambda song: float(song.get_rating_as_number()), reverse=True)
+    songs = songs_with_rating.limit(page_size).offset(page*page_size).all()
+
+    songs = [(song, Song.get_rating_as_string(rating), Song.get_rating_as_string(user_rating))
+             for song, rating, user_rating in songs]
+
     return render_template_with_user("songs/search_ajax.html", songs=songs)
 
 
@@ -72,6 +86,7 @@ def completion():
     elif source_column == "artist":
         result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
     elif source_column == "all":
+        # TODO: Make faster
         result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).all()]
         result += [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).all()]
         result += [song.title for song in Song.query.filter(Song.title.contains(term)).all()]
