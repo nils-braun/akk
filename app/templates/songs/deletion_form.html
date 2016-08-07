@@ -1,10 +1,17 @@
 {% extends "songs/base_form.html" %}
 {% block form_content %}
-    {% for data in data_to_delete %}
-        {{ data.title }} ({{ data.artist.name }}, {{ data.dance.name }})
-    {% endfor %}
+    {% if data_to_delete|length > 0 %}
+        <div id="current_usage">
+            Current usage in the database ({{ data_to_delete|length }} {% if data_to_delete|length > 1 %}entries{% else %}entry{% endif %}):
+            <ul id="current_usage_table">
+                {% for data in data_to_delete %}
+                    <li>{{ data.title }} ({{ data.artist.name }}, {{ data.dance.name }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.name, class="input text") }}
-    {{ form.sure_to_delete(class="button") }}
     {{ form.unsure_to_delete(class="button") }}
+    {{ form.sure_to_delete(class="button") }}
 {% endblock %}

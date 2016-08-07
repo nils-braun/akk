@@ -63,3 +63,12 @@ textarea.input {
     border: none;
     padding-left: 2pt;
 }
+
+#current_usage {
+    background: #ffaea1;
+    padding: 5px;
+    margin-bottom: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid black;
+}
