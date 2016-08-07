@@ -4,8 +4,8 @@
     <form method="POST" action="." class="form">
         {{ form.csrf_token }}
         {{ render_field(form.email, class="input text") }}
-        {{ form.next_path() }}
         {{ render_field(form.password, class="input text") }}
         <input type="submit" value="Login" class="button green">
+        <input type="hidden" value="{{ next or '' }}" name="next">
     </form>
 {% endblock %}

@@ -4,13 +4,13 @@ from sqlalchemy import desc
 from sqlalchemy import func
 
 from app import db
-from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm, SearchSongForm
+from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
 from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
     set_or_add_rating
 from app.songs.models import Artist, Dance, Song, Rating
-from app.users.decorators import requires_login, render_template_with_user
+from app.functions import requires_login, render_template_with_user, get_redirect_target, redirect_back_or
 from app.users.models import User
-from flask import Blueprint, request, flash, g, session, redirect, url_for
+from flask import Blueprint, request, flash, g, session
 
 mod = Blueprint('songs', __name__, url_prefix='/songs')
 
@@ -28,28 +28,16 @@ def before_request():
 @mod.route('/home/', methods=['GET'])
 @requires_login
 def home():
-    if "query" in request.args:
-        query = request.args["query"]
-    else:
-        query = ""
-
+    query = request.args.get("query", default="")
     return render_template_with_user("songs/home.html", query=query)
 
 
 @mod.route('/search/', methods=['GET'])
 @requires_login
 def search():
-    if "page_size" in request.args:
-        page_size = int(request.args["page_size"])
-    else:
-        page_size = 100
-
-    if "page" in request.args:
-        page = int(request.args["page"])
-    else:
-        page = 0
-
-    query_string = request.args["query"]
+    page_size = request.args.get("page_size", default=100, type=int)
+    page = request.args.get("page", default=0, type=int)
+    query_string = request.args.get("query")
 
     average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating"))\
         .group_by(Rating.song_id).subquery()
@@ -78,8 +66,8 @@ def search():
 @mod.route("/completion/", methods=['GET'])
 @requires_login
 def completion():
-    source_column = request.args["source"]
-    term = request.args["term"]
+    source_column = request.args.get("source")
+    term = request.args.get("term")
 
     if source_column == "dance":
         result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
@@ -120,6 +108,8 @@ def create_song():
     Create new song form
     """
     form = CreateSongForm(request.form)
+    next_url = get_redirect_target()
+
     if form.validate_on_submit():
         artist, dance = get_or_add_artist_and_dance(form)
 
@@ -128,9 +118,9 @@ def create_song():
         db.session.commit()
 
         flash('Sucessfully added song')
-        return redirect(url_for('songs.home'))
+        return redirect_back_or('songs.home')
 
-    return render_template_with_user("songs/create_song.html", form=form)
+    return render_template_with_user("songs/create_song.html", form=form, next=next_url)
 
 
 @mod.route('/edit_song/', methods=['GET', 'POST'])
@@ -140,6 +130,7 @@ def edit_song():
     Edit or delete a song
     """
     form = EditSongForm(request.form)
+    next_url = get_redirect_target()
 
     if form.is_submitted():
         # this will be called on reloading the form
@@ -176,7 +167,7 @@ def edit_song():
 
             flash('Sucessfully updated song')
 
-            return redirect(url_for('songs.home'))
+            return redirect_back_or('songs.home')
         elif form.delete_button.data:
             db.session.delete(song)
             db.session.commit()
@@ -185,7 +176,7 @@ def edit_song():
 
             flash('Sucessfully deleted song')
 
-            return redirect(url_for('songs.home'))
+            return redirect_back_or('songs.home')
 
     else:
         # it seems we are coming directly from the main page
@@ -204,4 +195,4 @@ def edit_song():
         form.note.data = song.note
         form.path.data = song.path
 
-    return render_template_with_user("songs/edit_song.html", form=form)
+    return render_template_with_user("songs/edit_song.html", form=form, next=next_url)

@@ -1,6 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, SubmitField, HiddenField, IntegerField, TextAreaField
-from wtforms.fields.core import BooleanField
+from wtforms import StringField, SubmitField, HiddenField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms.widgets.core import TextInput
 
@@ -19,8 +18,8 @@ class CompletionInput(TextInput):
 
         return super(TextInput, self).__call__(field, **kwargs)
 
-class CompletionField(StringField):
 
+class CompletionField(StringField):
     def __init__(self, *args, **kwargs):
         if "column" in kwargs:
             column = kwargs.pop("column")
@@ -29,16 +28,13 @@ class CompletionField(StringField):
         super(CompletionField, self).__init__(*args, widget=CompletionInput(column=column), **kwargs)
 
 
-class SearchSongForm(Form):
-    query = CompletionField(column="all")
-
-
 class DeletionForm(Form):
     """
     Form to delete a dance or an artist and every attached song.
     """
     sure_to_delete = SubmitField("Force delete")
     unsure_to_delete = SubmitField("Show Usage")
+
 
 class DeleteArtistForm(DeletionForm):
     """

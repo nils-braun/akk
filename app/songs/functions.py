@@ -1,16 +1,19 @@
+from flask import request, flash, url_for, g
+
 from app import db
+from app.functions import render_template_with_user, get_redirect_target, redirect_back_or
 from app.songs.models import Song, Dance, Artist, Rating
-from app.users.decorators import render_template_with_user
-from flask import request, flash, redirect, url_for, g
 
 
 def delete_entity(FormClass, DataClass, name, song_argument):
-    form = FormClass(request.form)
+    form = FormClass(request.values)
+    next_url = get_redirect_target()
+
     data_to_delete = []
     if form.validate_on_submit():
         entity = DataClass.query.filter_by(name=form.name.data).first()
         if entity:
-            filter_dict={song_argument: entity.id}
+            filter_dict = {song_argument: entity.id}
             data_to_delete = Song.query.filter_by(**filter_dict).all()
 
             if form.sure_to_delete.data:
@@ -24,14 +27,14 @@ def delete_entity(FormClass, DataClass, name, song_argument):
                     delete_unused_old_entities(artist, dance)
 
                 flash('Sucessfully deleted %s' % entity.name)
-                return redirect(url_for('songs.home'))
+                return redirect_back_or(url_for('songs.home'))
             else:
                 flash('Are you sure you want to delete?')
                 form.sure_to_delete.data = True
 
         else:
             flash('No %s with this name' % name, 'error-message')
-    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete)
+    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
 
 
 def delete_unused_old_entities(old_artist, old_dance):
@@ -64,6 +67,7 @@ def get_or_add_artist_and_dance(form):
         flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
+
 
 def set_or_add_rating(song, rating_value):
     query = Rating.query.filter_by(song_id=song.id, user_id=g.user.id)

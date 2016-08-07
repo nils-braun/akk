@@ -5,6 +5,7 @@
         {{ form.csrf_token }}
         {% block form_content %}
         {% endblock %}
+        <input type="hidden" value="{{ next or '' }}" name="next">
         {% block abort_buttons %}
             <input type="button"
                    onclick="window.location='{{ url_for("songs.home") }}';"
