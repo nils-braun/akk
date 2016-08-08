@@ -126,8 +126,7 @@ class Rating(db.Model):
     song_id = db.Column(db.Integer, db.ForeignKey("songs_songs.id"))
     # Delete when song is deleted
     song = db.relationship(Song, backref=db.backref("songs_ratings", uselist=True, cascade='delete,all'))
-
-    # FIXME: Constraint on double voting!
+    no_double_voting_constraint = db.UniqueConstraint(user_id, song_id)
 
     def __init__(self, user, song):
         self.song_id = song.id
