@@ -67,21 +67,3 @@ def get_or_add_artist_and_dance(form):
         flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
-
-
-def set_or_add_rating(song, rating_value):
-    query = Rating.query.filter_by(song_id=song.id, user_id=g.user.id)
-
-    if query.count() == 0:
-        # Add new rating
-        new_rating = Rating(g.user, song)
-        new_rating.value = rating_value
-
-        db.session.add(new_rating)
-    else:
-        # Update old rating
-        old_rating = query.one()
-        old_rating.value = rating_value
-        db.session.merge(old_rating)
-
-    db.session.commit()

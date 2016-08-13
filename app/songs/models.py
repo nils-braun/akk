@@ -131,3 +131,23 @@ class Rating(db.Model):
     def __init__(self, user, song):
         self.song_id = song.id
         self.user_id = user.id
+
+    @staticmethod
+    def set_or_add_rating(song, user, rating_value):
+        query = Rating.query.filter_by(song_id=song.id, user_id=user.id)
+
+        if query.count() == 0:
+            # Add new rating
+            new_rating = Rating(g.user, song)
+            new_rating.value = rating_value
+
+            db.session.add(new_rating)
+        else:
+            # Update old rating
+            old_rating = query.one()
+            old_rating.value = rating_value
+            db.session.merge(old_rating)
+
+        db.session.commit()
+
+
