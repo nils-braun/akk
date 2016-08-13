@@ -1,3 +1,7 @@
+from datetime import datetime
+
+from sqlalchemy import not_
+
 from app import db
 import app.songs.constants as SONGS
 from app.users.models import User
@@ -72,7 +76,6 @@ class Song(db.Model):
     __tablename__ = "songs_songs"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(350), nullable=False)
-    note = db.Column(db.Unicode(1000), nullable=True)
     path = db.Column(db.Unicode(500), nullable=False, default="")
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
@@ -98,6 +101,16 @@ class Song(db.Model):
             return "%.1f" % rating
         else:
             return SONGS.NOT_RATED_STRING
+
+    def get_comments_except_user(self, user):
+        return Comment.query.filter(Comment.song_id==self.id, not_(Comment.user_id==user.id)).all()
+
+    def get_user_comment(self, user):
+        query = Comment.query.filter_by(song_id=self.id, user_id=user.id)
+        if query.count() > 0:
+            return query.one()
+        else:
+            return None
 
     def get_number_of_playlists(self):
         # TODO
@@ -152,3 +165,39 @@ class Rating(db.Model):
         db.session.commit()
 
 
+class Comment(db.Model):
+    __tablename__ = "songs_comments"
+    id = db.Column(db.Integer, primary_key=True)
+    note = db.Column(db.Unicode(1000), nullable=False)
+    creation_date = db.Column(db.DateTime)
+
+    user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
+    # Delete when user is deleted
+    user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
+    # Delete when song is deleted
+    song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    no_double_comment_constraint = db.UniqueConstraint(user_id, song_id)
+
+    def __init__(self, user, song):
+        self.song_id = song.id
+        self.user_id = user.id
+        self.creation_date = datetime.now()
+
+    @staticmethod
+    def set_or_add_comment(song, user, note_value):
+        query = Comment.query.filter_by(song_id=song.id, user_id=user.id)
+
+        if query.count() == 0:
+            # Add new rating
+            new_comment = Comment(user, song)
+            new_comment.note = note_value
+
+            db.session.add(new_comment)
+        else:
+            # Update old rating
+            old_comment = query.one()
+            old_comment.note = note_value
+            db.session.merge(old_comment)
+
+        db.session.commit()
