@@ -75,15 +75,15 @@ class Song(db.Model):
     note = db.Column(db.Unicode(1000), nullable=True)
     path = db.Column(db.Unicode(500), nullable=False, default="")
 
-    artist_id = db.Column(db.Integer, db.ForeignKey('songs_artists.id'))
+    artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
     # Delete when artists is deleted
-    artist = db.relationship(Artist, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
-    dance_id = db.Column(db.Integer, db.ForeignKey('songs_dances.id'))
+    artist = db.relationship(Artist, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    dance_id = db.Column(db.Integer, db.ForeignKey(Dance.__tablename__ + '.id'))
     # Delete when dance is deleted
-    dance = db.relationship(Dance, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
-    creation_user_id = db.Column(db.Integer, db.ForeignKey("users_user.id"))
+    dance = db.relationship(Dance, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    creation_user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
     # Delete when user is deleted
-    creation_user = db.relationship(User, backref=db.backref("songs_songs", uselist=True, cascade='delete,all'))
+    creation_user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
 
     def get_user_rating(self, user):
         query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
@@ -120,13 +120,14 @@ class Rating(db.Model):
     __tablename__ = "songs_ratings"
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Integer)
-    user_id = db.Column(db.Integer, db.ForeignKey("users_user.id"))
+
+    user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
     # Delete when user is deleted
-    user = db.relationship(User, backref=db.backref("songs_ratings", uselist=True, cascade='delete,all'))
-    song_id = db.Column(db.Integer, db.ForeignKey("songs_songs.id"))
+    user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
     # Delete when song is deleted
-    song = db.relationship(Song, backref=db.backref("songs_ratings", uselist=True, cascade='delete,all'))
-    no_double_voting_constraint = db.UniqueConstraint(user_id, song_id)
+    song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    no_double_rating_constraint = db.UniqueConstraint(user_id, song_id)
 
     def __init__(self, user, song):
         self.song_id = song.id
