@@ -1,5 +1,4 @@
 {% macro render_field(field) %}
-    <div class="form_field">
     {{ field.label(class="label") }}
     {% if field.errors %}
         {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
@@ -8,5 +7,4 @@
     {% else %}
         {{ field(**kwargs) }}
     {% endif %}
-    </div>
 {% endmacro %}

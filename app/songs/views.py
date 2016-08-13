@@ -5,9 +5,8 @@ from sqlalchemy import func
 
 from app import db
 from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
-from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
-    set_or_add_rating
-from app.songs.models import Artist, Dance, Song, Rating
+from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance
+from app.songs.models import Artist, Dance, Song, Rating, Comment
 from app.functions import requires_login, render_template_with_user, get_redirect_target, redirect_back_or
 from app.users.models import User
 from flask import Blueprint, request, flash, g, session
@@ -137,6 +136,8 @@ def edit_song():
         song_id = form.song_id.data
         song = Song.query.filter_by(id=song_id).first()
 
+        other_comments = song.get_comments_except_user(g.user)
+
         old_artist = song.artist
         old_dance = song.dance
 
@@ -147,10 +148,12 @@ def edit_song():
             song.artist_id = artist.id
             song.dance_id = dance.id
             song.title = form.title.data
-            song.note = form.note.data
 
             db.session.merge(song)
             db.session.commit()
+
+            if form.note.data != "":
+                Comment.set_or_add_comment(song, g.user, form.note.data)
 
             if form.rating.data != "nr":
                 try:
@@ -160,7 +163,7 @@ def edit_song():
                     flash("Please insert a numerical rating.", "error-message")
                     return render_template_with_user("songs/edit_song.html", form=form)
                 else:
-                    set_or_add_rating(song, form.rating.data)
+                    Rating.set_or_add_rating(song, g.user, form.rating.data)
 
             if artist != old_artist or dance != old_dance:
                 delete_unused_old_entities(old_artist, old_dance)
@@ -192,7 +195,11 @@ def edit_song():
         form.artist_name.data = song.artist.name
         form.dance_name.data = song.dance.name
         form.rating.data = song.get_user_rating(g.user)
-        form.note.data = song.note
+        user_comment = song.get_user_comment(g.user)
+        if user_comment:
+            form.note.data = user_comment.note
         form.path.data = song.path
 
-    return render_template_with_user("songs/edit_song.html", form=form, next=next_url)
+        other_comments = song.get_comments_except_user(g.user)
+
+    return render_template_with_user("songs/edit_song.html", form=form, other_comments=other_comments, next=next_url)

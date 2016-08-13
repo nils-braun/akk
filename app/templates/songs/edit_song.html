@@ -2,8 +2,16 @@
 {% block buttons %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.rating, class="input rating") }}
-    {{ render_field(form.note, class="input textarea") }}
     {{ render_field(form.path, class="input text readonly", readonly=true) }}
+    <div id="note-viewer">
+        <table id="comments">
+        {% for comment in other_comments %}
+            <tr><td class="comment-name">{{ comment.user.name }}:</td><td>{{ comment.note }}</td></tr>
+        {% endfor %}
+        <tr><td class="comment-name">{{ user.name }}:</td><td>{{ form.note(class="input textarea comment-content") }}</td></tr>
+        </table>
+
+    </div>
     {{ form.song_id() }}
     {{ form.edit_button(class="button green", value="Save") }}
     {{ form.delete_button(class="button red", value="Delete Song") }}

@@ -21,14 +21,14 @@ form {
     margin: 0;
 }
 
-.input.textarea {
-    height: 100px;
+.input.comment-content {
+    height: 50px;
     resize: none;
+    overflow: auto;
 }
 
 .input.has_error {
-    border-color: red;
-    border-style: solid;
+    border: solid red;
 }
 
 .errors {
@@ -54,10 +54,6 @@ form {
     margin-top: 7px;
 }
 
-textarea.input {
-    max-lines: 10;
-}
-
 .input.readonly {
     background: lightgray;
     border: none;
@@ -71,4 +67,26 @@ textarea.input {
     max-height: 200px;
     overflow-y: auto;
     border: 1px solid black;
+}
+
+#note-viewer {
+    border: 1pt solid darkgray;
+    background: white;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+#note-viewer > ul {
+    padding: 10px;
+    list-style-type: none;
+    margin: 0;
+}
+
+#comments {
+    width: 100%;
+}
+
+.comment-name {
+    font-weight: bold;
+    padding-right: 15px;
 }
