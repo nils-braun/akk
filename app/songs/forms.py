@@ -1,7 +1,7 @@
 from flask_wtf import Form
-from wtforms import StringField, SubmitField, HiddenField, TextAreaField
+from wtforms import StringField, SubmitField, HiddenField, TextAreaField, Field
 from wtforms.validators import DataRequired
-from wtforms.widgets.core import TextInput
+from wtforms.widgets.core import TextInput, HTMLString, Input
 
 
 class CompletionInput(TextInput):
@@ -26,6 +26,22 @@ class CompletionField(StringField):
         else:
             column = "all"
         super(CompletionField, self).__init__(*args, widget=CompletionInput(column=column), **kwargs)
+
+
+class RatingInput(Input):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('class', "rating")
+        kwargs['data-value'] = field._value()
+        kwargs['data-enabled'] = True
+        return HTMLString('<div %s></div>' % self.html_params(name=field.name, **kwargs))
+
+
+class RatingField(Field):
+    widget = RatingInput()
+
+    def _value(self):
+        return self.data if self.data is not "nr" and self.data is not None else 0
 
 
 class DeletionForm(Form):
@@ -63,7 +79,7 @@ class EditSongForm(CreateSongForm):
     """
     Refined form for editing songs.
     """
-    rating = StringField()
+    rating = RatingField()
     note = TextAreaField()
     edit_button = SubmitField()
     delete_button = SubmitField()

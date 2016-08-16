@@ -51,12 +51,13 @@ def search():
     songs_with_rating = songs_with_queried_content\
         .outerjoin(average_rating_for_songs, Song.id==average_rating_for_songs.c.song_id)\
         .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id)\
+        .group_by(Song.id)\
         .with_entities(Song, average_rating_for_songs.c.rating.label("rating"), user_rating_for_songs.c.user_rating.label("user_rating"))\
         .order_by(desc("rating"), desc("user_rating"), Dance.name, Song.title)
 
     songs = songs_with_rating.limit(page_size).offset(page*page_size).all()
 
-    songs = [(song, Song.get_rating_as_string(rating), Song.get_rating_as_string(user_rating))
+    songs = [(song, Song.get_rating(rating), Song.get_rating(user_rating))
              for song, rating, user_rating in songs]
 
     return render_template_with_user("songs/search_ajax.html", songs=songs)
@@ -73,7 +74,7 @@ def completion():
     elif source_column == "artist":
         result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
     elif source_column == "all":
-        # TODO: Make faster
+        # TODO: Make faster, see issue #3
         result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
         result += [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
         result += [song.title for song in Song.query.filter(Song.title.contains(term)).limit(10).all()]
@@ -155,15 +156,14 @@ def edit_song():
             if form.note.data != "":
                 Comment.set_or_add_comment(song, g.user, form.note.data)
 
-            if form.rating.data != "nr":
-                try:
-                    int(form.rating.data)
-                except:
-                    # FIXME: Create a better widget for this.
-                    flash("Please insert a numerical rating.", "error-message")
-                    return render_template_with_user("songs/edit_song.html", form=form)
-                else:
-                    Rating.set_or_add_rating(song, g.user, form.rating.data)
+            if int(form.rating.data) != 0:
+                Rating.set_or_add_rating(song, g.user, form.rating.data)
+            else:
+                rating_query = Rating.query.filter_by(song_id=song.id, user_id=g.user.id)
+                if rating_query.count() > 0:
+                    for rating_to_delete in rating_query.all():
+                        db.session.delete(rating_to_delete)
+                    db.session.commit()
 
             if artist != old_artist or dance != old_dance:
                 delete_unused_old_entities(old_artist, old_dance)

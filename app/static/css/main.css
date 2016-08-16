@@ -82,3 +82,25 @@ body {
 .flash-error-message {
     color: darkred;
 }
+
+.rating-star {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: repeat-x;
+    background-image: url("../img/star.png");
+}
+
+.rating-star-filled {
+    background-image: url("../img/star_filled.png");
+}
+
+form .rating-star {
+    width: 40px;
+    height: 40px;
+}
+
+.rating {
+    text-align: center;
+}

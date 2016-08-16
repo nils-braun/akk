@@ -8,9 +8,7 @@
                 make_search_query(query, 0);
             } else {
                 $.get("{{ url_for("songs.search") }}", {query: query, page: page}, function (data) {
-                    if (data.length == 0) {
-                        //window.history.pushState({"html": $("#song-list").find("tbody").html()}, "Title", "?query=" + query);
-                    } else {
+                    if (data.length != 0) {
                         $("#song-list").find("tbody").append(data);
                         make_search_query(query, page + 1);
                     }
@@ -50,8 +48,8 @@
                 <td>Song Title</td>
                 <td>Artist Name</td>
                 <td>Dance Name</td>
-                <td colspan="2" width="10%">Rating</td>
-                <td width="10%">Playlists</td>
+                <td>Rating</td>
+                <td>Playlists</td>
             </tr>
         </thead>
         <tbody>

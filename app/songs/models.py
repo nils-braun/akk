@@ -96,9 +96,9 @@ class Song(db.Model):
             return SONGS.NOT_RATED_STRING
 
     @staticmethod
-    def get_rating_as_string(rating):
+    def get_rating(rating):
         if rating is not None:
-            return "%.1f" % rating
+            return "%d" % round(rating)
         else:
             return SONGS.NOT_RATED_STRING
 
@@ -152,7 +152,7 @@ class Rating(db.Model):
 
         if query.count() == 0:
             # Add new rating
-            new_rating = Rating(g.user, song)
+            new_rating = Rating(user, song)
             new_rating.value = rating_value
 
             db.session.add(new_rating)

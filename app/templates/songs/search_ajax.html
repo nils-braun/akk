@@ -4,9 +4,8 @@
             <td width="30%">{{ song.title }}</td>
             <td width="30%">{{ song.artist.name }}</td>
             <td width="25%">{{ song.dance.name }}</td>
-            <td width="5%">{{ rating }}</td>
-            <td width="5%">({{ user_rating }})</td>
-            <td width="5%">{{ song.get_number_of_playlists() }}</td>
+            <td><div class="rating" data-value="{{ rating }}"></div></td>
+            <td>{{ song.get_number_of_playlists() }}</td>
         </tr>
     {% endfor %}
 {% endif %}
