@@ -140,8 +140,5 @@ function addBindings() {
 
 $(document).ready(function() {
     addBindings();
-    $("#content-wrapper").bind("DOMNodeInserted", function() {
-        addBindings();
-    });
 });
 

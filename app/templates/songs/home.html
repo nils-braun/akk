@@ -2,15 +2,24 @@
 {% block content_id %}content-songlist{% endblock %}
 {% block content %}
     <script type="application/javascript">
+        var currentPage = 0;
+        var loading = false;
+
         function make_search_query(query, page) {
+            if(loading) {
+                return;
+            }
             if(typeof page === "undefined") {
                 $("#song-list").find("tbody").html("");
                 make_search_query(query, 0);
             } else {
+                loading = true;
                 $.get("{{ url_for("songs.search") }}", {query: query, page: page}, function (data) {
                     if (data.length != 0) {
                         $("#song-list").find("tbody").append(data);
-                        make_search_query(query, page + 1);
+                        addBindings();
+                        currentPage += 1;
+                        loading = false;
                     }
                 });
             }
@@ -23,6 +32,14 @@
                window.location = "{{ url_for("songs.home") }}";
             });
         });
+    
+        $("#content-wrapper").scroll(function(e) {
+            var elem = $(e.currentTarget);
+            if(elem[0].scrollHeight - elem.scrollTop() < elem.outerHeight() + 100) {
+                make_search_query("{{ query }}", currentPage);
+                // ajax call get data from server and append to the div
+            }
+        })
     </script>
 
     <form class="form" id="search_form">
