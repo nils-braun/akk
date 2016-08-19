@@ -1,13 +1,14 @@
 $.widget("custom.completion", {
 	options: {
-        column: "all"
+        column: "all",
+        autoFocus: true
 	},
 	_create: function() {
         var completionObject = this;
         var completionHTMLElement = completionObject.element;
 
 		completionHTMLElement.autocomplete({
-			autoFocus: true,
+			autoFocus: completionObject.options.autoFocus,
 			source: function(request, responseFunction) {
 				$.getJSON("/songs/completion/", {source: completionObject.options.column, term: request.term},  function(data) {
                     responseFunction(data);
@@ -122,7 +123,7 @@ function addBindings() {
                        column: column, result: function (event, item) {
                            $(this).val(item.value);
                            $("#search_form").submit();
-                       }
+                       }, autoFocus: false
                    });
                } else {
                    $(this).completion({column: column});
