@@ -34,69 +34,68 @@ $.widget("custom.rating", {
     data: 0,
 
 	_create: function() {
-        var ownElement = this;
-        ownElement.data = ownElement.options.data;
+        var ratingObject = this;
+        ratingObject.data = ratingObject.options.data;
 
-        // Add images
-        var length = ownElement.options.length;
-        var inputElement = ownElement.element; //.element.find("div");
-        inputElement.addClass("rating");
+        var length = ratingObject.options.length;
+        var ratingHTMLElement = ratingObject.element;
+        ratingHTMLElement.addClass("rating");
 
-
-        if(ownElement.options.changeable) {
-            inputElement.append("<input type='hidden' name='" + inputElement.attr("name") + "' value='" + ownElement.value() + "'>");
-            inputElement.append("<input type='button' " +
-                "class='unrate-star' value='' " +
-                "onclick='$(this).parent().rating(\"value\", 0);'>");
+        if(ratingObject.options.changeable) {
+            ratingHTMLElement.append("<input type='hidden' " +
+                "name='" + ratingHTMLElement.attr("name") + "' " +
+                "value='" + ratingObject.value() + "'>");
+            
+            ratingHTMLElement.append("<input type='button' " +
+                "class='unrate-star' value=''>");
         }
 
         for(var i = 0; i < length; i++) {
-            inputElement.append("<span class='rating-star'></span>");
+            ratingHTMLElement.append("<span class='rating-star'></span>");
         }
 
         // Add handlers
-        ownElement.update(ownElement.data);
+        ratingObject.update(ratingObject.data);
 
-        if (ownElement.options.changeable) {
-            var images = inputElement.find("span");
-            inputElement.on("mouseover", "span", function () {
-                ownElement.update(images.index(this) + 1);
+        if (ratingObject.options.changeable) {
+            var images = ratingHTMLElement.find("span");
+            ratingHTMLElement.on("mouseover", "span", function () {
+                ratingObject.update(images.index(this) + 1);
             });
 
-            inputElement.on("mouseover", ".unrate-star", function () {
-                ownElement.update(0);
+            ratingHTMLElement.on("click", "span", function () {
+                ratingObject.data = images.index(this) + 1;
+                ratingObject.element.find("input[type=hidden]").val(ratingObject.data);
+            });
+            
+            ratingHTMLElement.on("mouseover", ".unrate-star", function () {
+                ratingObject.update(0);
             });
 
-            inputElement.on("mouseleave", ".unrate-star", function () {
-                ownElement.update(ownElement.data);
+            ratingHTMLElement.on("mouseleave", ".unrate-star", function () {
+                ratingObject.update(ratingObject.data);
+            });
+            
+            ratingHTMLElement.on("click", ".unrate-star", function () {
+               ratingObject.value(0);
             });
 
-            inputElement.on("click", "span", function () {
-                ownElement.data = images.index(this) + 1;
-                ownElement.element.find("input[type=hidden]").val(ownElement.data);
-            });
-
-            inputElement.on("mouseleave", function () {
-                ownElement.update(ownElement.data);
+            ratingHTMLElement.on("mouseleave", function () {
+                ratingObject.update(ratingObject.data);
             });
         }
 	},
 
     update: function(number) {
-        var ownElement = this;
-        var images = ownElement.element.find("span");
-        if(number > ownElement.currentStatus) {
-            images.slice(ownElement.currentStatus, number).addClass("rating-star-filled", 1000);
-        } else if(number < ownElement.currentStatus) {
-            images.slice(number, ownElement.currentStatus).removeClass("rating-star-filled", 1000);
+        var ratingObject = this;
+        var images = ratingObject.element.find("span");
+        if(number > ratingObject.currentStatus) {
+            images.slice(ratingObject.currentStatus, number).addClass("rating-star-filled", 1000);
+        } else if(number < ratingObject.currentStatus) {
+            images.slice(number, ratingObject.currentStatus).removeClass("rating-star-filled", 1000);
         }
 
-        ownElement.currentStatus = number;
-    },
-
-    reset: function() {
-        this.data = 0;
-        this.update(0);
+        ratingObject.currentStatus = number;
     },
 
     value: function(value) {
