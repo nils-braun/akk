@@ -18,6 +18,10 @@
 
         $(document).ready(function() {
             make_search_query("{{ query }}");
+
+            $("#search_form").on("click", "input[type=reset]", function() {
+               window.location = "{{ url_for("songs.home") }}";
+            });
         });
     </script>
 
@@ -28,8 +32,11 @@
                 <td>
                     <input title="" type="text" id="query" name="query" class="input text completion completion-all" value="{{ query }}">
                 </td>
-                <td>
+                <td width="200px">
                     <input type="submit" value="Search" class="button">
+                </td>
+                <td width="200px">
+                    <input type="reset" value="Clear" class="button">
                 </td>
             </tr>
             </tbody>

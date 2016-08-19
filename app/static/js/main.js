@@ -1,26 +1,28 @@
 $.widget("custom.completion", {
 	options: {
-        column: "all"
+        column: "all",
+        autoFocus: true
 	},
 	_create: function() {
-        var ownElement = this;
-        var inputElement = ownElement.element;
+        var completionObject = this;
+        var completionHTMLElement = completionObject.element;
 
-		inputElement.addClass("ui-completion");
-		inputElement.autocomplete({
-			autoFocus: this.options.autoFocus,
+		completionHTMLElement.autocomplete({
+			autoFocus: completionObject.options.autoFocus,
 			source: function(request, responseFunction) {
-				$.getJSON("/songs/completion/", {source: ownElement.options.column, term: request.term},  function(data) {
+				$.getJSON("/songs/completion/", {source: completionObject.options.column, term: request.term},  function(data) {
                     responseFunction(data);
                 });
 			},
 			minLength: 1,
 			select: function(event, ui) {
-				ownElement._trigger("result", ownElement, {value: ui.item.value, element: this});
+				completionObject._trigger("result", completionObject, {value: ui.item.value, element: this});
 			}
 
 		});
-	}
+	},
+
+	result : function(event, item) { }
 });
 
 $.widget("custom.rating", {
@@ -116,7 +118,16 @@ function addBindings() {
            var singleClass = classes[singleClassID];
            if(singleClass.startsWith("completion-")) {
                var column = singleClass.substring("completion-".length);
-               $(this).completion({column: column});
+               if(column == "all") {
+                   $(this).completion({
+                       column: column, result: function (event, item) {
+                           $(this).val(item.value);
+                           $("#search_form").submit();
+                       }, autoFocus: false
+                   });
+               } else {
+                   $(this).completion({column: column});
+               }
            }
        }
     });
