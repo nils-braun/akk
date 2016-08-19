@@ -41,13 +41,17 @@ $.widget("custom.rating", {
         var length = ownElement.options.length;
         var inputElement = ownElement.element; //.element.find("div");
         inputElement.addClass("rating");
-        for(var i = 0; i < length; i++) {
-            inputElement.append("<span class='rating-star'></span>");
-        }
+
 
         if(ownElement.options.changeable) {
             inputElement.append("<input type='hidden' name='" + inputElement.attr("name") + "' value='" + ownElement.value() + "'>");
-            inputElement.append("<input type='button' class='input button' value='unrate' onclick='$(this).parent().rating(\"value\", 0);'>");
+            inputElement.append("<input type='button' " +
+                "class='unrate-star' value='' " +
+                "onclick='$(this).parent().rating(\"value\", 0);'>");
+        }
+
+        for(var i = 0; i < length; i++) {
+            inputElement.append("<span class='rating-star'></span>");
         }
 
         // Add handlers
@@ -57,6 +61,14 @@ $.widget("custom.rating", {
             var images = inputElement.find("span");
             inputElement.on("mouseover", "span", function () {
                 ownElement.update(images.index(this) + 1);
+            });
+
+            inputElement.on("mouseover", ".unrate-star", function () {
+                ownElement.update(0);
+            });
+
+            inputElement.on("mouseleave", ".unrate-star", function () {
+                ownElement.update(ownElement.data);
             });
 
             inputElement.on("click", "span", function () {
@@ -74,9 +86,9 @@ $.widget("custom.rating", {
         var ownElement = this;
         var images = ownElement.element.find("span");
         if(number > ownElement.currentStatus) {
-            images.slice(ownElement.currentStatus, number).addClass("rating-star-filled");
+            images.slice(ownElement.currentStatus, number).addClass("rating-star-filled", 1000);
         } else if(number < ownElement.currentStatus) {
-            images.slice(number, ownElement.currentStatus).removeClass("rating-star-filled");
+            images.slice(number, ownElement.currentStatus).removeClass("rating-star-filled", 1000);
         }
 
         ownElement.currentStatus = number;
