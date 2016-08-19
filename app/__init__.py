@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -44,3 +44,7 @@ app.register_blueprint(usersModule)
 
 from app.songs.views import mod as songsModule
 app.register_blueprint(songsModule)
+
+@app.route("/")
+def index():
+    return redirect(url_for("songs.home"))
