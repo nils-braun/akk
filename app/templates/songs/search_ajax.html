@@ -1,11 +1,12 @@
 {% if songs|length > 0 %}
     {% for song, rating, user_rating in songs %}
-        <tr onclick="window.location='{{ url_for('songs.edit_song', song_id=song.id) }}'">
-            <td width="30%">{{ song.title }}</td>
-            <td width="30%">{{ song.artist.name }}</td>
-            <td width="25%">{{ song.dance.name }}</td>
+        <tr>
+            <td><div class="player-controls" data-path="{{ song.path }}"></div></td>
+            <td>{{ song.title }}</td>
+            <td>{{ song.artist.name }}</td>
+            <td>{{ song.dance.name }}</td>
             <td><div class="rating" data-value="{{ rating }}"></div></td>
-            <td>{{ song.get_number_of_playlists() }}</td>
+            <td><div class="rating" data-value="{{ user_rating }}"></div></td>
         </tr>
     {% endfor %}
 {% endif %}
