@@ -55,3 +55,16 @@
 #control-view a {
     display: table-cell;
 }
+
+.player-controls {
+    background-image: url("../img/play.png");
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.player-controls.playing {
+    background-image: url("../img/play_filled.png");
+}
