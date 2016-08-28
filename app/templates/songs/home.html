@@ -8,10 +8,10 @@
             });
         }
 
-        function add_edit_binding() {
-            $("#content-songlist").on("click", "tr", function () {
+        function add_edit_binding(edit_url) {
+            $("#content-songlist").on("click", ".songlist_row", function () {
                 var song_id = $(this).attr("data-id");
-                window.location = "{{ url_for("songs.edit_song") }}?song_id=" + song_id;
+                window.location = edit_url + "?song_id=" + song_id;
             })    
         }
         
@@ -20,7 +20,7 @@
             add_reset_binding();
             add_audio_binding();
             add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}");
-            add_edit_binding();
+            add_edit_binding("{{ url_for("songs.edit_song") }}");
         });
     </script>
 
