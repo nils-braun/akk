@@ -18,9 +18,10 @@
         $(document).ready(function() {
             make_search_query("{{ url_for("songs.search") }}", "{{ query }}");
             add_reset_binding();
-            add_audio_binding();
+            add_audio_binding("{{ url_for("songs.serve_song") }}");
             add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}");
             add_edit_binding("{{ url_for("songs.edit_song") }}");
+            add_download_binding("{{ url_for("songs.download_song") }}");
         });
     </script>
 
