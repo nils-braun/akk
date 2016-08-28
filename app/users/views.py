@@ -16,6 +16,7 @@ def logout():
     if g.user:
         del g.user
         del session["user_id"]
+        del session["download_id"]
 
         flash("Successfully logged out.")
 
