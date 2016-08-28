@@ -2,44 +2,27 @@
 {% block content_id %}content-songlist{% endblock %}
 {% block content %}
     <script type="application/javascript">
-        var currentPage = 0;
-        var loading = false;
-
-        function make_search_query(query, page) {
-            if(loading) {
-                return;
-            }
-            if(typeof page === "undefined") {
-                $("#song-list").find("tbody").html("");
-                make_search_query(query, 0);
-            } else {
-                loading = true;
-                $.get("{{ url_for("songs.search") }}", {query: query, page: page}, function (data) {
-                    if (data.length != 0) {
-                        $("#song-list").find("tbody").append(data);
-                        addBindings();
-                        currentPage += 1;
-                        loading = false;
-                    }
-                });
-            }
+        function add_reset_binding() {
+            $("#search_form").on("click", "input[type=reset]", function () {
+                window.location = "{{ url_for("songs.home") }}";
+            });
         }
 
-        $(document).ready(function() {
-            make_search_query("{{ query }}");
-
-            $("#search_form").on("click", "input[type=reset]", function() {
-               window.location = "{{ url_for("songs.home") }}";
+        function add_edit_binding(edit_url) {
+            $("#content-songlist").on("click", ".songlist_row", function () {
+                var song_id = $(this).attr("data-id");
+                window.location = edit_url + "?song_id=" + song_id;
             });
+        }
+        
+        $(document).ready(function() {
+            make_search_query("{{ url_for("songs.search") }}", "{{ query }}");
+            add_reset_binding();
+            add_audio_binding("{{ url_for("songs.serve_song") }}");
+            add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}");
+            add_edit_binding("{{ url_for("songs.edit_song") }}");
+            add_download_binding("{{ url_for("songs.download_song") }}");
         });
-    
-        $("#content-wrapper").scroll(function(e) {
-            var elem = $(e.currentTarget);
-            if(elem[0].scrollHeight - elem.scrollTop() < elem.outerHeight() + 100) {
-                make_search_query("{{ query }}", currentPage);
-                // ajax call get data from server and append to the div
-            }
-        })
     </script>
 
     <form class="form" id="search_form">
@@ -64,16 +47,18 @@
         <a href="{{ url_for('songs.create_song') }}">Add Song</a>
         <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
         <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
+        <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter</a>
     </div>
 
     <table id="song-list">
         <thead>
             <tr>
+                <td width="50px"></td>
                 <td>Song Title</td>
                 <td>Artist Name</td>
                 <td>Dance Name</td>
-                <td>Rating</td>
-                <td>Playlists</td>
+                <td width="120px">Rating</td>
+                <td width="120px">User Rating</td>
             </tr>
         </thead>
         <tbody>

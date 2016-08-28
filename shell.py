@@ -27,7 +27,10 @@ def create_db():
     db.session.add(dance)
     db.session.commit()
 
-    db.session.add(Song(u"a", artist, dance, user))
+    song = Song(u"a", artist, dance, user)
+    song.path = "4 - Nothing Else Matters.mp3"
+
+    db.session.add(song)
     db.session.commit()
 
 

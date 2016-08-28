@@ -1,5 +1,6 @@
 import json
 
+from flask.helpers import send_from_directory
 from sqlalchemy import desc
 from sqlalchemy import func
 
@@ -122,6 +123,39 @@ def create_song():
 
     return render_template_with_user("songs/create_song.html", form=form, next=next_url)
 
+
+@mod.route("/serve/", methods=['GET'])
+@requires_login
+def serve_song():
+    filename = request.args["filename"]
+    if filename.startswith("/"):
+        filename = filename[1:]
+    return send_from_directory("data", filename, as_attachment=False)
+
+
+@mod.route("/download/", methods=['GET'])
+@requires_login
+def download_song():
+    filename = request.args["filename"]
+    if filename.startswith("/"):
+        filename = filename[1:]
+
+    attachment_filename = filename
+
+    if "download_id" not in session:
+        session["download_id"] = 0
+
+    attachment_filename = "{id} - {filename}".format(id=session["download_id"], filename=attachment_filename)
+
+    session["download_id"] += 1
+
+    return send_from_directory("data", filename, as_attachment=True, attachment_filename=attachment_filename)
+
+@mod.route("/reset_download_id/")
+@requires_login
+def reset_download_id():
+    session["download_id"] = 0
+    return redirect_back_or("songs.home")
 
 @mod.route('/edit_song/', methods=['GET', 'POST'])
 @requires_login

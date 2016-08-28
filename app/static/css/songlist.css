@@ -55,3 +55,23 @@
 #control-view a {
     display: table-cell;
 }
+
+.player-controls, .download-controls {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.player-controls{
+    background-image: url("../img/play.png");
+}
+
+.download-controls{
+    background-image: url("../img/download.png");
+}
+
+.player-controls.playing {
+    background-image: url("../img/play_filled.png");
+}

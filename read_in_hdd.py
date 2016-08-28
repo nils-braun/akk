@@ -33,6 +33,7 @@ if __name__ == '__main__':
     top_level_entries = [os.path.join(base_path, dir) for dir in os.listdir(base_path)]
     top_level_entries = filter(os.path.isdir, top_level_entries)
 
+    added_counter = 0
 
     for possible_dance_dir in top_level_entries:
         possible_dance_name = os.path.split(possible_dance_dir)[-1]
@@ -55,7 +56,12 @@ if __name__ == '__main__':
                 artist, artist_new_created = Artist.get_or_add_artist(artist_name)
 
                 new_song = Song(title, artist, dance, user)
-                new_song.path = file_name_with_this_dance
+                new_song.path = file_name_with_this_dance.replace(base_path, "")
                 db.session.add(new_song)
                 db.session.commit()
+
+                added_counter += 1
+
+            if added_counter % 10 == 0:
+                print("Added", added_counter, "song to the database")
 
