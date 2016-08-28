@@ -2,85 +2,25 @@
 {% block content_id %}content-songlist{% endblock %}
 {% block content %}
     <script type="application/javascript">
-        var currentPage = 0;
-        var loading = false;
-
-        function make_search_query(query, page) {
-            if(loading) {
-                return;
-            }
-            if(typeof page === "undefined") {
-                $("#song-list").find("tbody").html("");
-                make_search_query(query, 0);
-            } else {
-                loading = true;
-                $.get("{{ url_for("songs.search") }}", {query: query, page: page}, function (data) {
-                    if (data.length != 0) {
-                        $("#song-list").find("tbody").append(data);
-                        addBindings();
-                        currentPage += 1;
-                        loading = false;
-                    }
-                });
-            }
-        }
-
         function add_reset_binding() {
             $("#search_form").on("click", "input[type=reset]", function () {
                 window.location = "{{ url_for("songs.home") }}";
             });
         }
 
-        function add_audio_binding() {
-            var audio_to_play = undefined;
-
-            function is_new_source() {
-                return audio_to_play == undefined;
-            }
-
-            function start_playing(audio_file_name, play_control) {
-                audio_to_play = new Audio(audio_file_name);
-                audio_to_play.play();
-                $(play_control).addClass("playing");
-            }
-
-            function stop_playing() {
-                if (audio_to_play != undefined) {
-                    audio_to_play.pause();
-                }
-                $("#content-songlist").find(".player-controls").removeClass("playing");
-            }
-
-            $("#content-songlist").on("click", ".player-controls", function () {
-                var audio_file_name = "/static/data/" + $(this).attr("data-path");
-
-                if (is_new_source()) {
-                    stop_playing();
-                    start_playing(audio_file_name, this);
-                } else {
-                    if (audio_to_play.paused) {
-                        start_playing(audio_file_name, this);
-                    } else {
-                        stop_playing(this);
-                    }
-                }
-            })
+        function add_edit_binding() {
+            $("#content-songlist").on("click", "tr", function () {
+                var song_id = $(this).attr("data-id");
+                window.location = "{{ url_for("songs.edit_song") }}?song_id=" + song_id;
+            })    
         }
-
-        function add_endless_scroll_binding() {
-            $("#content-wrapper").scroll(function (e) {
-                var elem = $(e.currentTarget);
-                if (elem[0].scrollHeight - elem.scrollTop() < elem.outerHeight() + 100) {
-                    make_search_query("{{ query }}", currentPage);
-                }
-            })
-        }
-
+        
         $(document).ready(function() {
-            make_search_query("{{ query }}");
+            make_search_query("{{ url_for("songs.search") }}", "{{ query }}");
             add_reset_binding();
             add_audio_binding();
-            add_endless_scroll_binding();
+            add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}");
+            add_edit_binding();
         });
     </script>
 

@@ -1,6 +1,6 @@
 {% if songs|length > 0 %}
     {% for song, rating, user_rating in songs %}
-        <tr>
+        <tr data-id="{{ song.id }}">
             <td><div class="player-controls" data-path="{{ song.path }}"></div></td>
             <td>{{ song.title }}</td>
             <td>{{ song.artist.name }}</td>
