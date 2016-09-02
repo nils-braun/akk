@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from glob import glob
 
 import re
@@ -10,6 +11,8 @@ from app.songs.models import Song, Artist, Dance
 from app.users.models import User
 
 import argparse
+from mutagen.mp3 import MP3
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -52,11 +55,15 @@ if __name__ == '__main__':
                 print("File name {} in wrong format. Skipping.".format(file_name_with_this_dance))
                 continue
             else:
+                audio_file = MP3(file_name_with_this_dance)
+
                 dance_name, artist_name, title = dance_artist_title.split(" - ")
                 artist, artist_new_created = Artist.get_or_add_artist(artist_name)
 
                 new_song = Song(title, artist, dance, user)
                 new_song.path = file_name_with_this_dance.replace(base_path, "")
+                new_song.duration = timedelta(seconds=audio_file.info.length)
+
                 db.session.add(new_song)
                 db.session.commit()
 
