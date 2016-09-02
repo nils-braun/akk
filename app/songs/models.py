@@ -78,6 +78,7 @@ class Song(db.Model):
     title = db.Column(db.Unicode(350), nullable=False)
     path = db.Column(db.Unicode(500), nullable=False, default="")
     duration = db.Column(db.Interval, nullable=True)
+    bpm = db.Column(db.Integer, nullable=False, default=0)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
     # Delete when artists is deleted

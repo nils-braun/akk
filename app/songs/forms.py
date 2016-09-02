@@ -1,5 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, HiddenField, TextAreaField, Field
+from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired
 from wtforms.widgets.core import TextInput, HTMLString, Input
 
@@ -73,6 +74,7 @@ class CreateSongForm(Form):
     title = StringField('Song Title', [DataRequired()])
     artist_name = CompletionField('Artist', [DataRequired()], column="artist")
     dance_name = CompletionField('Dance', [DataRequired()], column="dance")
+    bpm = IntegerField("BPM", default=0)
 
 
 class EditSongForm(CreateSongForm):

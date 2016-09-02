@@ -183,6 +183,7 @@ def edit_song():
             song.artist_id = artist.id
             song.dance_id = dance.id
             song.title = form.title.data
+            song.bpm = form.bpm.data
 
             db.session.merge(song)
             db.session.commit()
@@ -229,10 +230,12 @@ def edit_song():
         form.artist_name.data = song.artist.name
         form.dance_name.data = song.dance.name
         form.rating.data = song.get_user_rating(g.user)
+        form.path.data = song.path
+        form.bpm.data = song.bpm
+
         user_comment = song.get_user_comment(g.user)
         if user_comment:
             form.note.data = user_comment.note
-        form.path.data = song.path
 
         other_comments = song.get_comments_except_user(g.user)
 
