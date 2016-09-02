@@ -74,7 +74,7 @@ class CreateSongForm(Form):
     title = StringField('Song Title', [DataRequired()])
     artist_name = CompletionField('Artist', [DataRequired()], column="artist")
     dance_name = CompletionField('Dance', [DataRequired()], column="dance")
-    bpm = IntegerField("BPM", [DataRequired()])
+    bpm = IntegerField("BPM", default=0)
 
 
 class EditSongForm(CreateSongForm):
