@@ -9,7 +9,7 @@
             <td>{{ song.artist.name }}</td>
             <td>{{ song.dance.name }}</td>
             <td><div class="rating" data-value="{{ rating }}"></div></td>
-            <td><div class="rating" data-value="{{ user_rating }}"></div></td>
+            <td>{{ "%02.d" |format(song.duration.seconds / 60) }}:{{ "%02d" | format(song.duration.seconds % 60) }}</td>
         </tr>
     {% endfor %}
 {% endif %}
