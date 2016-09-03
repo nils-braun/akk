@@ -1,8 +1,13 @@
-from flask import request, flash, url_for, g
+import os
+from datetime import timedelta
 
-from app import db
+from flask import request, flash, url_for, g
+from mutagen.mp3 import MP3
+
+from app import db, app
 from app.functions import render_template_with_user, get_redirect_target, redirect_back_or
-from app.songs.models import Song, Dance, Artist, Rating
+from app.songs.constants import SONG_PATH_FORMAT
+from app.songs.models import Song, Dance, Artist, Rating, Comment
 
 
 def delete_entity(FormClass, DataClass, name, song_argument):
@@ -67,3 +72,88 @@ def get_or_add_artist_and_dance(form):
         flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
+
+
+def get_song_duration(file_name_with_this_dance):
+    audio_file = MP3(file_name_with_this_dance)
+    return timedelta(seconds=audio_file.info.length)
+
+
+def create_file_path(form):
+    file_name = SONG_PATH_FORMAT.format(dance_name=form.dance_name.data,
+                                        artist_name=form.artist_name.data,
+                                        title=form.title.data)
+    upload_path = os.path.join(app.root_path, app.config["DATA_FOLDER"])
+    file_path_to_save_to = os.path.join(upload_path, file_name)
+    return file_name, file_path_to_save_to
+
+
+def set_form_from_song(song_id, form):
+    song = Song.query.filter_by(id=song_id).first()
+
+    if not song:
+        return
+
+    form.song_id.data = song_id
+    form.title.data = song.title
+    form.artist_name.data = song.artist.name
+    form.dance_name.data = song.dance.name
+    form.rating.data = song.get_user_rating(g.user)
+    form.path.data = song.path
+    form.bpm.data = song.bpm
+    user_comment = song.get_user_comment(g.user)
+    if user_comment:
+        form.note.data = user_comment.note
+
+    return song
+
+
+def upload_file_to_song(form, song):
+    uploaded_file = request.files[form.path.name]
+    if uploaded_file:
+        file_name, file_path_to_save_to = create_file_path(form)
+
+        while os.path.exists(file_path_to_save_to):
+            path, extension = os.path.splitext(file_path_to_save_to)
+            file_path_to_save_to = path + "1" + extension
+
+        uploaded_file.save(file_path_to_save_to)
+        song.duration = get_song_duration(file_path_to_save_to)
+        song.path = file_name
+
+        db.session.merge(song)
+        db.session.commit()
+
+
+def change_or_add_song(form, song=None, old_artist=None, old_dance=None):
+    artist, dance = get_or_add_artist_and_dance(form)
+
+    if song is None:
+        song = Song(creation_user=g.user)
+        song_is_new = True
+    else:
+        song_is_new = False
+
+    song.artist_id = artist.id
+    song.dance_id = dance.id
+    song.title = form.title.data
+    song.bpm = form.bpm.data
+
+    if song_is_new:
+        db.session.merge(song)
+    else:
+        db.session.add(song)
+
+    db.session.commit()
+
+    if hasattr(form, "note"):
+        Comment.set_or_add_comment(song, g.user, form.note.data)
+
+    if hasattr(form, "rating"):
+        Rating.set_add_or_delete_rating(song, g.user, form.rating.data)
+
+    upload_file_to_song(form, song)
+
+    if old_artist is not None and old_dance is not None:
+        if artist != old_artist or dance != old_dance:
+            delete_unused_old_entities(old_artist, old_dance)

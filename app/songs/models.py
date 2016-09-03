@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import not_
 
@@ -77,7 +77,7 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(350), nullable=False)
     path = db.Column(db.Unicode(500), nullable=False, default="")
-    duration = db.Column(db.Interval, nullable=True)
+    duration = db.Column(db.Interval, nullable=False, default=timedelta())
     bpm = db.Column(db.Integer, nullable=False, default=0)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
@@ -118,13 +118,10 @@ class Song(db.Model):
         # TODO
         return 0
 
-    def __init__(self, title, artist, dance, creation_user):
+    def __init__(self, creation_user):
         """
         Create a new song.
         """
-        self.title = title
-        self.artist_id = artist.id
-        self.dance_id = dance.id
         self.creation_user_id = creation_user.id
 
     def __repr__(self):
@@ -149,20 +146,26 @@ class Rating(db.Model):
         self.user_id = user.id
 
     @staticmethod
-    def set_or_add_rating(song, user, rating_value):
+    def set_add_or_delete_rating(song, user, rating_value):
         query = Rating.query.filter_by(song_id=song.id, user_id=user.id)
 
-        if query.count() == 0:
-            # Add new rating
-            new_rating = Rating(user, song)
-            new_rating.value = rating_value
+        if int(rating_value) != 0:
+            # There is a rating
+            if query.count() == 0:
+                # Add new rating
+                new_rating = Rating(user, song)
+                new_rating.value = rating_value
 
-            db.session.add(new_rating)
+                db.session.add(new_rating)
+            else:
+                # Update old rating
+                old_rating = query.one()
+                old_rating.value = rating_value
+                db.session.merge(old_rating)
         else:
-            # Update old rating
-            old_rating = query.one()
-            old_rating.value = rating_value
-            db.session.merge(old_rating)
+            if query.count() > 0:
+                for rating_to_delete in query.all():
+                    db.session.delete(rating_to_delete)
 
         db.session.commit()
 
@@ -188,6 +191,10 @@ class Comment(db.Model):
 
     @staticmethod
     def set_or_add_comment(song, user, note_value):
+        if note_value.strip() == "":
+            # Do not add empty comments
+            return
+
         query = Comment.query.filter_by(song_id=song.id, user_id=user.id)
 
         if query.count() == 0:

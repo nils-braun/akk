@@ -1,18 +1,23 @@
+import os
+import sys
 from functools import wraps
 from urllib.parse import urlparse, urljoin
 
 from flask import session, g, flash, redirect, url_for, request, render_template
 
-from app.users.models import User
 
-
-def before_request():
+def add_before_request(mod):
     """
     pull user's profile from the database before every request are treated
     """
-    g.user = None
-    if 'user_id' in session:
-        g.user = User.query.get(session['user_id'])
+
+    def before_request():
+        g.user = None
+        if 'user_id' in session:
+            from app.users.models import User
+            g.user = User.query.get(session['user_id'])
+
+    mod.before_request(before_request)
 
 
 def requires_login(f):
@@ -55,3 +60,43 @@ def redirect_back_or(endpoint, **values):
     if not target or not is_safe_url(target):
         target = url_for(endpoint, **values)
     return redirect(target)
+
+
+def install_secret_key(app, filename='secret_key'):
+    """Configure the SECRET_KEY from a file
+    in the instance directory.
+
+    If the file does not exist, print instructions
+    to create it from a shell with a random key,
+    then exit.
+    """
+    filename = os.path.join(app.instance_path, filename)
+
+    try:
+        app.config['SECRET_KEY'] = open(filename, 'rb').read()
+    except IOError:
+        print('Error: No secret key. Create it with:')
+        full_path = os.path.dirname(filename)
+        if not os.path.isdir(full_path):
+            print('mkdir -p {filename}'.format(filename=full_path))
+        print('head -c 24 /dev/urandom > {filename}'.format(filename=filename))
+        sys.exit(1)
+
+
+def set_basic_configuration_and_views(app):
+    if not app.config['DEBUG']:
+        install_secret_key(app)
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('404.html'), 404
+
+    from app.users.views import mod as users_module
+    app.register_blueprint(users_module)
+
+    from app.songs.views import mod as songs_module
+    app.register_blueprint(songs_module)
+
+    @app.route("/")
+    def index():
+        return redirect(url_for("songs.home"))
