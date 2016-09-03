@@ -1,16 +1,19 @@
 import json
+import os
 
+from flask import Blueprint, request, flash, g, session
 from flask.helpers import send_from_directory
 from sqlalchemy import desc
 from sqlalchemy import func
 
-from app import db
-from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
-from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance
-from app.songs.models import Artist, Dance, Song, Rating, Comment
+from app import db, app
 from app.functions import requires_login, render_template_with_user, get_redirect_target, redirect_back_or
+from app.songs.constants import SONG_FILE_FORMAT, SONG_PATH_FORMAT
+from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, EditSongForm
+from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
+    get_song_duration
+from app.songs.models import Artist, Dance, Song, Rating, Comment
 from app.users.models import User
-from flask import Blueprint, request, flash, g, session
 
 mod = Blueprint('songs', __name__, url_prefix='/songs')
 
@@ -115,6 +118,15 @@ def create_song():
         artist, dance = get_or_add_artist_and_dance(form)
 
         song = Song(title=form.title.data, dance=dance, artist=artist, creation_user=g.user)
+        song.bpm = form.bpm.data
+
+        uploaded_file = request.files[form.path.name]
+        if uploaded_file:
+            file_name, file_path_to_save_to = create_file_path(form)
+            uploaded_file.save(file_path_to_save_to)
+            song.duration = get_song_duration(file_path_to_save_to)
+            song.path = file_name
+
         db.session.add(song)
         db.session.commit()
 
@@ -122,6 +134,15 @@ def create_song():
         return redirect_back_or('songs.home')
 
     return render_template_with_user("songs/create_song.html", form=form, next=next_url)
+
+
+def create_file_path(form):
+    file_name = SONG_PATH_FORMAT.format(dance_name=form.dance_name.data,
+                                        artist_name=form.artist_name.data,
+                                        title=form.title.data)
+    upload_path = os.path.join(app.root_path, app.config["DATA_FOLDER"])
+    file_path_to_save_to = os.path.join(upload_path, file_name)
+    return file_name, file_path_to_save_to
 
 
 @mod.route("/serve/", methods=['GET'])
@@ -151,8 +172,8 @@ def download_song():
         if "download_id" not in session:
             session["download_id"] = 0
 
-        attachment_filename = "{id} - {song.dance.name} - {song.title} - {song.artist.name}.mp3".format(
-            id=session["download_id"], song=song)
+        attachment_filename = "{id} - " + SONG_FILE_FORMAT.format(
+            id=session["download_id"], title=song.title, artist_name=song.artist.name, dance_name=song.dance.name)
 
         session["download_id"] += 1
 
