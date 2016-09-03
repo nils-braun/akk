@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy import not_
 
@@ -77,7 +77,7 @@ class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Unicode(350), nullable=False)
     path = db.Column(db.Unicode(500), nullable=False, default="")
-    duration = db.Column(db.Interval, nullable=True)
+    duration = db.Column(db.Interval, nullable=False, default=timedelta())
     bpm = db.Column(db.Integer, nullable=False, default=0)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
