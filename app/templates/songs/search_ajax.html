@@ -2,8 +2,8 @@
     {% for song, rating, user_rating in songs %}
         <tr class="songlist_row" data-id="{{ song.id }}">
             <td>
-                <div class="player-controls" data-path="{{ song.path }}"></div>
-                <div class="download-controls" data-path="{{ song.path }}"></div>
+                <div class="player-controls"></div>
+                <div class="download-controls"></div>
             </td>
             <td>{{ song.title }}</td>
             <td>{{ song.artist.name }}</td>

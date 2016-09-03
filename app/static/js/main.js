@@ -142,12 +142,12 @@ $(document).ready(function() {
     addBindings();
 });
 
-function get_audio_file_name(element) {
-    return $(element).attr("data-path");
+function get_audio_song_id(element) {
+    return $(element).parents("tr").attr("data-id");
 }
 function add_download_binding(download_url) {
     $("#content-songlist").on("click", ".download-controls", function () {
-        window.location.href = download_url + "?filename=" + get_audio_file_name(this);
+        window.location.href = download_url + "?song_id=" + get_audio_song_id(this);
         return false;
     });
 }
@@ -177,7 +177,7 @@ function add_audio_binding(play_url) {
     }
 
     $("#content-songlist").on("click", ".player-controls", function () {
-        var audio_file_name = play_url + "?filename=" + get_audio_file_name(this);
+        var audio_file_name = play_url + "?song_id=" + get_audio_song_id(this);
 
         stop_playing();
 

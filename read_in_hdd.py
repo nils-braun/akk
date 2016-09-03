@@ -61,7 +61,7 @@ if __name__ == '__main__':
                 artist, artist_new_created = Artist.get_or_add_artist(artist_name)
 
                 new_song = Song(title, artist, dance, user)
-                new_song.path = file_name_with_this_dance.replace(base_path, "")
+                new_song.path = file_name_with_this_dance.replace(base_path, "")[1:]
                 new_song.duration = timedelta(seconds=audio_file.info.length)
 
                 db.session.add(new_song)
