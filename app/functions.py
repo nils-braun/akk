@@ -6,14 +6,18 @@ from urllib.parse import urlparse, urljoin
 from flask import session, g, flash, redirect, url_for, request, render_template
 
 
-def before_request():
+def add_before_request(mod):
     """
     pull user's profile from the database before every request are treated
     """
-    g.user = None
-    if 'user_id' in session:
-        from app.users.models import User
-        g.user = User.query.get(session['user_id'])
+
+    def before_request():
+        g.user = None
+        if 'user_id' in session:
+            from app.users.models import User
+            g.user = User.query.get(session['user_id'])
+
+    mod.before_request(before_request)
 
 
 def requires_login(f):

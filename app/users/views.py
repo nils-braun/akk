@@ -1,6 +1,5 @@
 from app import db
-from app.functions import before_request, render_template_with_user, requires_login, get_redirect_target, \
-    redirect_back_or
+from app.functions import render_template_with_user, requires_login, add_before_request
 from app.songs.functions import redirect_back_or, get_redirect_target
 from app.users.forms import RegisterForm, LoginForm
 from app.users.models import User
@@ -8,8 +7,7 @@ from flask import Blueprint, request, flash, g, session, redirect, url_for
 from werkzeug import check_password_hash, generate_password_hash
 
 mod = Blueprint('users', __name__, url_prefix='/users')
-mod.before_request(before_request)
-
+add_before_request(mod)
 
 @mod.route('/logout/', methods=['GET', 'POST'])
 def logout():
