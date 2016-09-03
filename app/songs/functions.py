@@ -112,9 +112,17 @@ def upload_file_to_song(form, song):
     uploaded_file = request.files[form.path.name]
     if uploaded_file:
         file_name, file_path_to_save_to = create_file_path(form)
+
+        while os.path.exists(file_path_to_save_to):
+            path, extension = os.path.splitext(file_path_to_save_to)
+            file_path_to_save_to = path + "1" + extension
+
         uploaded_file.save(file_path_to_save_to)
         song.duration = get_song_duration(file_path_to_save_to)
         song.path = file_name
+
+        db.session.merge(song)
+        db.session.commit()
 
 
 def change_or_add_song(form, song=None, old_artist=None, old_dance=None):
