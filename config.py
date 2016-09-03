@@ -12,3 +12,5 @@ DATABASE_CONNECT_OPTIONS = {}
 
 WTF_CSRF_ENABLED = True
 WTF_CSRF_SECRET_KEY = "somethingimpossibletoguess"
+
+DATA_FOLDER = "data"
