@@ -2,7 +2,6 @@
 {% block buttons %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.rating, class="input rating") }}
-    {{ render_field(form.path, class="input text readonly", readonly=true) }}
     <div id="note-viewer">
         <table id="comments">
         {% for comment in other_comments %}
