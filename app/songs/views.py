@@ -127,35 +127,44 @@ def create_song():
 @mod.route("/serve/", methods=['GET'])
 @requires_login
 def serve_song():
-    filename = request.args["filename"]
-    if filename.startswith("/"):
-        filename = filename[1:]
-    return send_from_directory("data", filename, as_attachment=False)
+    song_id = request.args["song_id"]
+
+    song = Song.query.filter_by(id=song_id).first()
+
+    if song:
+        return send_from_directory("data", song.path, as_attachment=False)
+    else:
+        return render_template_with_user("404.html"), 404
 
 
 @mod.route("/download/", methods=['GET'])
 @requires_login
 def download_song():
-    filename = request.args["filename"]
-    if filename.startswith("/"):
-        filename = filename[1:]
+    song_id = request.args["song_id"]
 
-    attachment_filename = filename
+    song = Song.query.filter_by(id=song_id).first()
 
-    if "download_id" not in session:
-        session["download_id"] = 0
+    if not song:
+        return render_template_with_user("404.html"), 404
+    else:
 
-    attachment_filename = "{id} - {filename}".format(id=session["download_id"], filename=attachment_filename)
+        if "download_id" not in session:
+            session["download_id"] = 0
 
-    session["download_id"] += 1
+        attachment_filename = "{id} - {song.dance.name} - {song.title} - {song.artist.name}.mp3".format(
+            id=session["download_id"], song=song)
 
-    return send_from_directory("data", filename, as_attachment=True, attachment_filename=attachment_filename)
+        session["download_id"] += 1
+
+        return send_from_directory("data", song.path, as_attachment=True, attachment_filename=attachment_filename)
+
 
 @mod.route("/reset_download_id/")
 @requires_login
 def reset_download_id():
     session["download_id"] = 0
     return redirect_back_or("songs.home")
+
 
 @mod.route('/edit_song/', methods=['GET', 'POST'])
 @requires_login
