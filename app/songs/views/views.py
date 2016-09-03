@@ -1,7 +1,7 @@
 import json
 import os
 
-from flask import Blueprint, request, flash, g, session
+from flask import request, flash, g, session
 from flask.helpers import send_from_directory
 from sqlalchemy import desc
 from sqlalchemy import func
@@ -13,19 +13,7 @@ from app.songs.forms import CreateSongForm, DeleteArtistForm, DeleteDanceForm, E
 from app.songs.functions import delete_entity, delete_unused_old_entities, get_or_add_artist_and_dance, \
     get_song_duration
 from app.songs.models import Artist, Dance, Song, Rating, Comment
-from app.users.models import User
-
-mod = Blueprint('songs', __name__, url_prefix='/songs')
-
-
-@mod.before_request
-def before_request():
-    """
-    pull user's profile from the database before every request are treated
-    """
-    g.user = None
-    if 'user_id' in session:
-        g.user = User.query.get(session['user_id'])
+from app.songs.views import mod
 
 
 @mod.route('/home/', methods=['GET'])

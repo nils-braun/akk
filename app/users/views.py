@@ -15,8 +15,12 @@ mod.before_request(before_request)
 def logout():
     if g.user:
         del g.user
-        del session["user_id"]
-        del session["download_id"]
+
+        if "user_id" in session:
+            del session["user_id"]
+
+        if "download_id" in session:
+            del session["download_id"]
 
         flash("Successfully logged out.")
 
