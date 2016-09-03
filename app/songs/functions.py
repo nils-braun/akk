@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 from flask import request, flash, url_for, g
+from mutagen.mp3 import MP3
 
 from app import db
 from app.functions import render_template_with_user, get_redirect_target, redirect_back_or
@@ -67,3 +70,8 @@ def get_or_add_artist_and_dance(form):
         flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
+
+
+def get_song_duration(file_name_with_this_dance):
+    audio_file = MP3(file_name_with_this_dance)
+    return timedelta(seconds=audio_file.info.length)
