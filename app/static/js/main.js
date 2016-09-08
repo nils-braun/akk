@@ -136,6 +136,11 @@ function addBindings() {
         $(this).rating({data: $(this).attr("data-value"),
                         changeable: typeof $(this).attr("data-enabled") !== typeof undefined});
     });
+
+    $(".tags").tagit({
+        animate: false,
+        availableTags: ["test1", "test2"]
+    });
 }
 
 $(document).ready(function() {
