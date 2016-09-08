@@ -19,20 +19,6 @@ def create_db():
     db.session.add(user)
     db.session.commit()
 
-    artist = Artist(u"b")
-    db.session.add(artist)
-    db.session.commit()
-
-    dance = Dance(u"c")
-    db.session.add(dance)
-    db.session.commit()
-
-    song = Song(u"a", artist, dance, user)
-    song.path = "4 - Nothing Else Matters.mp3"
-
-    db.session.add(song)
-    db.session.commit()
-
 
 if __name__ == '__main__':
     print("Type create_db() to create the DB.")
