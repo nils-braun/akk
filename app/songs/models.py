@@ -101,8 +101,6 @@ class Song(db.Model):
 
     labels = db.relationship(Label, secondary="songs_labels_to_songs")
 
-    no_double_song_constraint = db.UniqueConstraint(title, dance_id, artist_id)
-
     @staticmethod
     def get_rating(rating):
         if rating is not None:
