@@ -5,6 +5,22 @@ from wtforms.validators import DataRequired, regexp
 from wtforms.widgets.core import TextInput, HTMLString, Input
 
 
+class TagsInput(TextInput):
+    def __call__(self, field, **kwargs):
+        class_string = " tags"
+        if "class" in kwargs:
+            kwargs["class"] += class_string
+        else:
+            kwargs["class"] = class_string
+
+        return super(TextInput, self).__call__(field, **kwargs)
+
+
+class TagsField(StringField):
+    def __init__(self, *args, **kwargs):
+        super(TagsField, self).__init__(*args, widget=TagsInput(), **kwargs)
+
+
 class CompletionInput(TextInput):
     def __init__(self, column):
         self.column = column
@@ -76,6 +92,7 @@ class CreateSongForm(Form):
     dance_name = CompletionField('Dance', [DataRequired()], column="dance")
     path = FileField("Path")
     bpm = IntegerField("BPM", default=0)
+    labels = TagsField('Tags')
 
 
 class EditSongForm(CreateSongForm):

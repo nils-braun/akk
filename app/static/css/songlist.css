@@ -75,3 +75,13 @@
 .player-controls.playing {
     background-image: url("../img/play_filled.png");
 }
+
+.tag-span {
+    margin-left: 5px;
+    outline: 1pt solid darkgray;
+    padding: 2px;
+}
+
+#song-list tbody tr:hover td .tag-span {
+    outline-color: black;
+}

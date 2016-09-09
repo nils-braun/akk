@@ -7,12 +7,19 @@ form {
     display: inline-block;
 }
 
-.input {
+.input, .tagit {
     width: 100%;
     height: 40px;
     margin: 10px 0;
     font-size: 14pt;
     padding-left: 2pt;
+    border: 1px solid lightgray;
+}
+
+.tagit {
+    padding: 1px 0 0 2pt !important;
+    height: 36px !important;
+    width: calc(100% - 4px);
 }
 
 .input.checkbox {

@@ -5,7 +5,7 @@ from glob import glob
 import shell
 from app import *
 from app.songs.functions import get_song_duration
-from app.songs.models import Song, Artist, Dance
+from app.songs.models import Song, Artist, Dance, Label
 from app.users.models import User
 
 if __name__ == '__main__':
@@ -55,9 +55,16 @@ if __name__ == '__main__':
                 dance_name, artist_name, title = dance_artist_title.split(" - ")
                 artist, artist_new_created = Artist.get_or_add_artist(artist_name)
 
-                new_song = Song(title, artist, dance, user)
+                new_song = Song()
+                new_song.title = title
+                new_song.artist = artist
+                new_song.dance = dance
+                new_song.creation_user = user
                 new_song.path = file_name_with_this_dance.replace(base_path, "")[1:]
                 new_song.duration = get_song_duration(file_name_with_this_dance)
+
+                new_label, label_new_created = Label.get_or_add_label("new")
+                new_song.labels = [new_label]
 
                 db.session.add(new_song)
 

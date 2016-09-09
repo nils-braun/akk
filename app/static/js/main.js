@@ -136,6 +136,41 @@ function addBindings() {
         $(this).rating({data: $(this).attr("data-value"),
                         changeable: typeof $(this).attr("data-enabled") !== typeof undefined});
     });
+
+    $(".tags").each(function(el) {
+        var tagObject = $(this);
+
+        function subtractArray(a1, a2) {
+            var result = [];
+            for (var i = 0; i < a1.length; i++) {
+                if ($.inArray(a1[i], a2) == -1) {
+                    result.push(a1[i]);
+                }
+            }
+            return result;
+        }
+
+        $(this).tagit({
+            animate: false,
+            autocomplete: {
+                autoFocus: true,
+                source: function (request, showChoices) {
+                    $.getJSON("/songs/completion/", {
+                        source: "label",
+                        term: request.term
+                    }, function (data) {
+                        var choices = [];
+                        for(var id in data) {
+                            choices.push(data[id]["label"]);
+                        }
+                        choices = subtractArray(choices, tagObject.tagit("assignedTags"));
+                        showChoices(choices);
+                    });
+                },
+                minLength: 1
+            }
+        });
+    });
 }
 
 $(document).ready(function() {
