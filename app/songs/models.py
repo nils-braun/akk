@@ -99,7 +99,6 @@ class Song(db.Model):
 
     no_double_song_constraint = db.UniqueConstraint(title, dance_id, artist_id)
 
-
     @staticmethod
     def get_rating(rating):
         if rating is not None:
@@ -123,9 +122,6 @@ class Song(db.Model):
             return query.one()
         else:
             return None
-
-    def __repr__(self):
-        return "Song: {self.title} ({self.id}) - {self.artist} - {self.dance}".format(self=self)
 
 
 class Rating(db.Model):
