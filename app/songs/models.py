@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 
 from sqlalchemy import not_
@@ -57,6 +58,7 @@ class Label(db.Model):
     __tablename__ = "songs_labels"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(150), unique=True)
+    color = db.Column(db.Unicode(6))
 
     @staticmethod
     def get_or_add_label(label_name):
@@ -65,6 +67,8 @@ class Label(db.Model):
         if not label:
             label = Label()
             label.name = label_name
+            label.color = random.choice(["#db56b2", "#dbc256", "#db5e56", "#91db56",
+                                         "#56db7f", "#56d3db", "#566fdb", "#a056db"])
             db.session.add(label)
             db.session.commit()
 

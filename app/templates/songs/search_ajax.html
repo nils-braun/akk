@@ -8,7 +8,7 @@
             <td>{{ song.title }}</td>
             <td>{{ song.artist.name }}</td>
             <td>{{ song.dance.name }}</td>
-            <td>{% for label in song.labels|sort(attribute="name", case_sensitive=True)%}<span class="tag-span">{{ label.name }}</span>{% endfor %}</td>
+            <td>{% for label in song.labels|sort(attribute="name", case_sensitive=True)%}<span style="background-color: {{ label.color }}" class="tag-span">{{ label.name }}</span>{% endfor %}</td>
             <td><div class="rating" data-value="{{ rating }}"></div></td>
             <td>{{ "%02.d" |format(song.duration.seconds / 60) }}:{{ "%02d" | format(song.duration.seconds % 60) }}</td>
             <td>{{ "%d" |format(song.bpm) }}</td>
