@@ -62,7 +62,7 @@ def delete_unused_only_labels(labels):
         related_songs_query = LabelsToSongs.query.filter_by(label_id=label.id)
         if related_songs_query.count() == 0:
             db.session.delete(label)
-            
+
             flash('Deleted label {} because no song is related any more.'.format(label.name))
 
     db.session.commit()
@@ -129,7 +129,7 @@ def set_form_from_song(song_id, form):
     form.rating.data = song.get_user_rating(g.user)
     form.path.data = song.path
     form.bpm.data = song.bpm
-    form.labels.data = ",".join([label.name for label in song.labels])
+    form.labels.data = ",".join(sorted([label.name for label in song.labels]))
 
     user_comment = song.get_user_comment(g.user)
     if user_comment:
