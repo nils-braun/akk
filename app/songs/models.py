@@ -20,22 +20,14 @@ class Dance(db.Model):
         dance = Dance.query.filter_by(name=dance_name).first()
         dance_created_new = False
         if not dance:
-            dance = Dance(name=dance_name)
+            dance = Dance()
+            dance.name=dance_name
             db.session.add(dance)
             db.session.commit()
 
             dance_created_new = True
 
         return dance, dance_created_new
-
-    def __init__(self, name):
-        """
-        Create a new dance.
-        """
-        self.name = name
-
-    def __repr__(self):
-        return "Dance: {self.name} ({self.id})".format(self=self)
 
 
 class Artist(db.Model):
@@ -51,7 +43,8 @@ class Artist(db.Model):
         artist = Artist.query.filter_by(name=artist_name).first()
         artist_created_new = False
         if not artist:
-            artist = Artist(name=artist_name)
+            artist = Artist()
+            artist.name=artist_name
             db.session.add(artist)
             db.session.commit()
 
@@ -59,14 +52,11 @@ class Artist(db.Model):
 
         return artist, artist_created_new
 
-    def __init__(self, name):
-        """
-        Create a new artist.
-        """
-        self.name = name
 
-    def __repr__(self):
-        return "Artist: {self.name} ({self.id})".format(self=self)
+class Label(db.Model):
+    __tablename__ = "songs_labels"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Unicode(150))
 
 
 class Song(db.Model):
@@ -81,26 +71,32 @@ class Song(db.Model):
     bpm = db.Column(db.Integer, nullable=False, default=0)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
+    dance_id = db.Column(db.Integer, db.ForeignKey(Dance.__tablename__ + '.id'))
+    creation_user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
+
     # Delete when artists is deleted
     artist = db.relationship(Artist, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    dance_id = db.Column(db.Integer, db.ForeignKey(Dance.__tablename__ + '.id'))
     # Delete when dance is deleted
     dance = db.relationship(Dance, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    creation_user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
     # Delete when user is deleted
     creation_user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
 
-    def get_user_rating(self, user):
-        query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
-        if query.count() > 0:
-            return query.one().value
-        else:
-            return SONGS.NOT_RATED_STRING
+    labels = db.relationship(Label, secondary="songs_labels_to_songs")
+
+    no_double_song_constraint = db.UniqueConstraint(title, dance_id, artist_id)
+
 
     @staticmethod
     def get_rating(rating):
         if rating is not None:
             return "%d" % round(rating)
+        else:
+            return SONGS.NOT_RATED_STRING
+
+    def get_user_rating(self, user):
+        query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
+        if query.count() > 0:
+            return query.one().value
         else:
             return SONGS.NOT_RATED_STRING
 
@@ -114,16 +110,6 @@ class Song(db.Model):
         else:
             return None
 
-    def get_number_of_playlists(self):
-        # TODO
-        return 0
-
-    def __init__(self, creation_user):
-        """
-        Create a new song.
-        """
-        self.creation_user_id = creation_user.id
-
     def __repr__(self):
         return "Song: {self.title} ({self.id}) - {self.artist} - {self.dance}".format(self=self)
 
@@ -134,16 +120,14 @@ class Rating(db.Model):
     value = db.Column(db.Integer)
 
     user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
+    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
+
     # Delete when user is deleted
     user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
     # Delete when song is deleted
     song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    no_double_rating_constraint = db.UniqueConstraint(user_id, song_id)
 
-    def __init__(self, user, song):
-        self.song_id = song.id
-        self.user_id = user.id
+    no_double_rating_constraint = db.UniqueConstraint(user_id, song_id)
 
     @staticmethod
     def set_add_or_delete_rating(song, user, rating_value):
@@ -153,7 +137,9 @@ class Rating(db.Model):
             # There is a rating
             if query.count() == 0:
                 # Add new rating
-                new_rating = Rating(user, song)
+                new_rating = Rating()
+                new_rating.song_id = song.id
+                new_rating.user_id = user.id
                 new_rating.value = rating_value
 
                 db.session.add(new_rating)
@@ -177,17 +163,14 @@ class Comment(db.Model):
     creation_date = db.Column(db.DateTime)
 
     user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
+    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
+
     # Delete when user is deleted
     user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"))
     # Delete when song is deleted
     song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
-    no_double_comment_constraint = db.UniqueConstraint(user_id, song_id)
 
-    def __init__(self, user, song):
-        self.song_id = song.id
-        self.user_id = user.id
-        self.creation_date = datetime.now()
+    no_double_comment_constraint = db.UniqueConstraint(user_id, song_id)
 
     @staticmethod
     def set_or_add_comment(song, user, note_value):
@@ -199,7 +182,10 @@ class Comment(db.Model):
 
         if query.count() == 0:
             # Add new rating
-            new_comment = Comment(user, song)
+            new_comment = Comment()
+            new_comment.song_id = song.id
+            new_comment.user_id = user.id
+            new_comment.creation_date = datetime.now()
             new_comment.note = note_value
 
             db.session.add(new_comment)
@@ -210,3 +196,14 @@ class Comment(db.Model):
             db.session.merge(old_comment)
 
         db.session.commit()
+
+
+class LabelsToSongs(db.Model):
+    __tablename__ = "songs_labels_to_songs"
+    song_id = db.Column(db.Integer, db.ForeignKey(Song.__tablename__ + ".id"), primary_key=True)
+    label_id = db.Column(db.Integer, db.ForeignKey(Label.__tablename__ + ".id"), primary_key=True)
+
+    # Delete when song is deleted
+    song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade="delete,all"))
+    # Delete when label is deleted
+    label = db.relationship(Label, backref=db.backref(__tablename__, uselist=True, cascade="delete,all"))
