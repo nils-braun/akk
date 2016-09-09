@@ -43,7 +43,7 @@ def add_playlist_views(mod):
             if "download_id" not in session:
                 session["download_id"] = 0
 
-            attachment_filename = "{id} - " + SONG_FILE_FORMAT.format(
+            attachment_filename = ("{id} - " + SONG_FILE_FORMAT).format(
                 id=session["download_id"], title=song.title, artist_name=song.artist.name, dance_name=song.dance.name)
 
             session["download_id"] += 1
