@@ -24,7 +24,9 @@
     padding: 10px 0;
     background-color: lightgray;
     border: 1pt solid darkgray;
+    cursor: pointer;
 }
+
 
 #content-songlist form table {
     width: 100%;

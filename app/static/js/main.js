@@ -228,16 +228,16 @@ var currentPage = 0;
 var loading = false;
 
 
-function make_search_query(search_url, query, page) {
+function make_search_query(search_url, query, sort_by, page) {
     if(loading) {
         return;
     }
     if(typeof page === "undefined") {
         $("#song-list").find("tbody").html("");
-        make_search_query(search_url, query, 0);
+        make_search_query(search_url, query, sort_by, 0);
     } else {
         loading = true;
-        $.get(search_url, {query: query, page: page}, function (data) {
+        $.get(search_url, {query: query, sort_by: sort_by, page: page}, function (data) {
             if (data.length != 0) {
                 $("#song-list").find("tbody").append(data);
                 addBindings();
@@ -248,11 +248,11 @@ function make_search_query(search_url, query, page) {
     }
 }
 
-function add_endless_scroll_binding(search_url, query) {
+function add_endless_scroll_binding(search_url, query, sort_by) {
     $("#content-wrapper").scroll(function (e) {
         var elem = $(e.currentTarget);
         if (elem[0].scrollHeight - elem.scrollTop() < elem.outerHeight() + 100) {
-            make_search_query(search_url, query, currentPage);
+            make_search_query(search_url, query, sort_by, currentPage);
         }
     })
 }

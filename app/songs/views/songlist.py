@@ -16,7 +16,8 @@ def add_songlist_views(mod):
         The home screen with the queried songlist.
         """
         query = request.args.get("query", default="")
-        return render_template_with_user("songs/home.html", query=query)
+        sort_by = request.args.get("sort_by", default="")
+        return render_template_with_user("songs/home.html", query=query, sort_by=sort_by)
 
     @mod.route('/search/', methods=['GET'])
     @requires_login
@@ -30,6 +31,7 @@ def add_songlist_views(mod):
         page_size = request.args.get("page_size", default=100, type=int)
         page = request.args.get("page", default=0, type=int)
         query_string = request.args.get("query")
+        sort_by = request.args.get("sort_by")
 
         average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating")) \
             .group_by(Rating.song_id).subquery()
@@ -47,10 +49,30 @@ def add_songlist_views(mod):
             .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id) \
             .group_by(Song.id) \
             .with_entities(Song, average_rating_for_songs.c.rating.label("rating"),
-                           user_rating_for_songs.c.user_rating.label("user_rating")) \
-            .order_by(desc("rating"), desc("user_rating"), Dance.name, Song.title)
+                           user_rating_for_songs.c.user_rating.label("user_rating"))
 
-        songs = songs_with_rating.limit(page_size).offset(page * page_size).all()
+        if sort_by == "title":
+            ordering_tuples = Song.title
+        elif sort_by == "artist":
+            ordering_tuples = Artist.name
+        elif sort_by == "dance":
+            ordering_tuples = Dance.name
+        elif sort_by == "label":
+            ordering_tuples = Label.name
+        elif sort_by == "rating":
+            ordering_tuples = desc("rating")
+        elif sort_by == "duration":
+            ordering_tuples = desc(Song.duration)
+        elif sort_by == "bpm":
+            ordering_tuples = Song.bpm
+        else:
+            ordering_tuples = None
+
+        ordering_tuples = (ordering_tuples, desc("rating"), desc("user_rating"), Song.title, Dance.name)
+
+        sorted_songs_with_rating = songs_with_rating.order_by(*ordering_tuples)
+
+        songs = sorted_songs_with_rating.limit(page_size).offset(page * page_size).all()
 
         songs = [(song, Song.get_rating(rating), Song.get_rating(user_rating))
                  for song, rating, user_rating in songs]

@@ -16,10 +16,10 @@
         }
         
         $(document).ready(function() {
-            make_search_query("{{ url_for("songs.search") }}", "{{ query }}");
+            make_search_query("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}");
             add_reset_binding();
             add_audio_binding("{{ url_for("songs.serve_song") }}");
-            add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}");
+            add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}");
             add_edit_binding("{{ url_for("songs.edit_song") }}");
             add_download_binding("{{ url_for("songs.download_song") }}");
         });
@@ -54,13 +54,27 @@
         <thead>
             <tr>
                 <td width="50px"></td>
-                <td>Song Title</td>
-                <td>Artist Name</td>
-                <td>Dance Name</td>
-                <td>Tags</td>
-                <td width="120px">Rating</td>
-                <td width="70px">Duration</td>
-                <td width="50px">BPM</td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="title") }}';">
+                    Song Title
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="artist") }}';">
+                    Artist Name
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="dance") }}';">
+                    Dance Name
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="label") }}';">
+                    Label
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating") }}';" width="120px"
+                >Rating
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="duration") }}';" width="70px">
+                    Duration
+                </td>
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="bpm") }}';" width="50px">
+                    BPM
+                </td>
             </tr>
         </thead>
         <tbody>
