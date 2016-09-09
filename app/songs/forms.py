@@ -92,7 +92,7 @@ class CreateSongForm(Form):
     dance_name = CompletionField('Dance', [DataRequired()], column="dance")
     path = FileField("Path")
     bpm = IntegerField("BPM", default=0)
-    tags = TagsField('Tags')
+    labels = TagsField('Tags')
 
 
 class EditSongForm(CreateSongForm):
