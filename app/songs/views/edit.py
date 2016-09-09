@@ -3,7 +3,8 @@ from flask import request, g, flash
 from app import db
 from app.functions import requires_login, get_redirect_target, redirect_back_or, render_template_with_user
 from app.songs.forms import DeleteArtistForm, DeleteDanceForm, CreateSongForm, EditSongForm
-from app.songs.functions import delete_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song
+from app.songs.functions import delete_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, \
+    delete_unused_only_labels
 from app.songs.models import Artist, Dance, Song
 
 
@@ -57,21 +58,23 @@ def add_song_edit_views(mod):
 
             other_comments = song.get_comments_except_user(g.user)
 
-            old_artist = song.artist
-            old_dance = song.dance
-
             if form.edit_button.data and form.validate():
-                change_or_add_song(form, song, old_artist, old_dance)
+                change_or_add_song(form, song)
 
                 flash('Sucessfully updated song')
 
                 return redirect_back_or('songs.home')
 
             elif form.delete_button.data:
+                old_artist = song.artist
+                old_dance = song.dance
+                old_labels = song.labels
+
                 db.session.delete(song)
                 db.session.commit()
 
                 delete_unused_old_entities(old_artist, old_dance)
+                delete_unused_only_labels(old_labels)
 
                 flash('Sucessfully deleted song')
 

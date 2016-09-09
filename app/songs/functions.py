@@ -7,7 +7,7 @@ from mutagen.mp3 import MP3
 from app import db, app
 from app.functions import render_template_with_user, get_redirect_target, redirect_back_or
 from app.songs.constants import SONG_PATH_FORMAT
-from app.songs.models import Song, Dance, Artist, Rating, Comment
+from app.songs.models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
 
 
 def delete_entity(FormClass, DataClass, name, song_argument):
@@ -45,15 +45,27 @@ def delete_entity(FormClass, DataClass, name, song_argument):
 def delete_unused_old_entities(old_artist, old_dance):
     if Song.query.filter_by(artist_id=old_artist.id).count() == 0:
         db.session.delete(old_artist)
-        db.session.commit()
 
         flash('Deleted artist {} because no song is related any more.'.format(old_artist.name))
 
     if Song.query.filter_by(dance_id=old_dance.id).count() == 0:
         db.session.delete(old_dance)
-        db.session.commit()
 
         flash('Deleted dance {} because no song is related any more.'.format(old_dance.name))
+
+    db.session.commit()
+
+
+def delete_unused_only_labels(labels):
+    for label in labels:
+        print(label.name, label.id)
+        related_songs_query = LabelsToSongs.query.filter_by(label_id=label.id)
+        if related_songs_query.count() == 0:
+            db.session.delete(label)
+            
+            flash('Deleted label {} because no song is related any more.'.format(label.name))
+
+    db.session.commit()
 
 
 def get_or_add_artist_and_dance(form):
@@ -72,6 +84,22 @@ def get_or_add_artist_and_dance(form):
         flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
+
+
+def get_or_add_labels(form):
+    labels = []
+    label_names = form.labels.data.split(",")
+    for label_name in label_names:
+        if label_name.strip() == "":
+            continue
+
+        label, label_created_new = Label.get_or_add_label(label_name)
+        labels.append(label)
+
+        if label_created_new:
+            flash("No label with the name {label_name}. Created a new one.".format(label_name=label.name))
+
+    return labels
 
 
 def get_song_duration(file_name_with_this_dance):
@@ -101,6 +129,8 @@ def set_form_from_song(song_id, form):
     form.rating.data = song.get_user_rating(g.user)
     form.path.data = song.path
     form.bpm.data = song.bpm
+    form.labels.data = ",".join([label.name for label in song.labels])
+
     user_comment = song.get_user_comment(g.user)
     if user_comment:
         form.note.data = user_comment.note
@@ -125,19 +155,30 @@ def upload_file_to_song(form, song):
         db.session.commit()
 
 
-def change_or_add_song(form, song=None, old_artist=None, old_dance=None):
+def change_or_add_song(form, song=None):
     artist, dance = get_or_add_artist_and_dance(form)
+    labels = get_or_add_labels(form)
 
     if song is None:
         song = Song(creation_user=g.user)
         song_is_new = True
+
+        old_artist = None
+        old_dance = None
+        old_labels = None
     else:
         song_is_new = False
+
+        old_artist = song.artist
+        old_dance = song.dance
+        # Copy is needed
+        old_labels = [label for label in song.labels]
 
     song.artist_id = artist.id
     song.dance_id = dance.id
     song.title = form.title.data
     song.bpm = form.bpm.data
+    song.labels = labels
 
     if song_is_new:
         db.session.merge(song)
@@ -154,6 +195,8 @@ def change_or_add_song(form, song=None, old_artist=None, old_dance=None):
 
     upload_file_to_song(form, song)
 
-    if old_artist is not None and old_dance is not None:
+    if not song_is_new:
         if artist != old_artist or dance != old_dance:
             delete_unused_old_entities(old_artist, old_dance)
+
+        delete_unused_only_labels(old_labels)
