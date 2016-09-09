@@ -5,7 +5,7 @@ from sqlalchemy import func, desc
 
 from app import db
 from app.functions import requires_login, render_template_with_user
-from app.songs.models import Rating, Song, Artist, Dance
+from app.songs.models import Rating, Song, Artist, Dance, Label, LabelsToSongs
 
 
 def add_songlist_views(mod):
@@ -38,9 +38,10 @@ def add_songlist_views(mod):
 
         filter_condition = (Artist.name.contains(query_string) |
                             Dance.name.contains(query_string) |
-                            Song.title.contains(query_string))
+                            Song.title.contains(query_string) |
+                            Label.name.contains(query_string))
 
-        songs_with_queried_content = Song.query.join(Artist, Dance).filter(filter_condition)
+        songs_with_queried_content = Song.query.join(Artist, Dance, LabelsToSongs).join(Label).filter(filter_condition)
         songs_with_rating = songs_with_queried_content \
             .outerjoin(average_rating_for_songs, Song.id == average_rating_for_songs.c.song_id) \
             .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id) \
@@ -72,11 +73,14 @@ def add_songlist_views(mod):
             result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
         elif source_column == "artist":
             result = [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
+        elif source_column == "label":
+            result = [label.name for label in Label.query.filter(Label.name.contains(term)).limit(10).all()]
         elif source_column == "all":
             # TODO: Make faster, see issue #3
             result = [dance.name for dance in Dance.query.filter(Dance.name.contains(term)).limit(10).all()]
             result += [artist.name for artist in Artist.query.filter(Artist.name.contains(term)).limit(10).all()]
             result += [song.title for song in Song.query.filter(Song.title.contains(term)).limit(10).all()]
+            result += [label.name for label in Label.query.filter(Label.name.contains(term)).limit(10).all()]
         else:
             return render_template_with_user("404.html"), 404
         return json.dumps([{"label": label} for label in set(result)])
