@@ -56,7 +56,21 @@ class Artist(db.Model):
 class Label(db.Model):
     __tablename__ = "songs_labels"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Unicode(150))
+    name = db.Column(db.Unicode(150), unique=True)
+
+    @staticmethod
+    def get_or_add_label(label_name):
+        label = Label.query.filter_by(name=label_name).first()
+        label_created_new = False
+        if not label:
+            label = Label()
+            label.name = label_name
+            db.session.add(label)
+            db.session.commit()
+
+            label_created_new = True
+
+        return label, label_created_new
 
 
 class Song(db.Model):
