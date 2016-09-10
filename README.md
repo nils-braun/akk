@@ -50,9 +50,10 @@ You can now open a web browser and navigate to
 [http://localhost:5000](http://localhost:5000). There is already a 
 user created with the user name test@test.com and the password test.
 
-Feel free to look around and test all features of the service. If you
-want to get back the original state of the database, navigate to the
-main folder of the installation and do a
+Feel free to look around and test all features of the service (the play
+and download feature however will not work, as the media files come not
+with this repository). If you want to get back the original state of the 
+database, navigate to the main folder of the installation and do a
 
     git checkout -- app.db
     
