@@ -30,8 +30,8 @@ and install the project with all its environments.
 
     git clone https://github.com/nils-braun/akk
     cd akk
-    virtualenv venv
-    source venv bin activate
+    virtualenv -ppython3 venv
+    source venv/bin/activate
     pip install -r requirements.txt
 
 On Windows: I have not tested this, but the approach is probably similar.
