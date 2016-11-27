@@ -1,3 +1,4 @@
+# Some general utility functions used throughout the project.
 import os
 import sys
 from functools import wraps
@@ -6,14 +7,43 @@ from urllib.parse import urlparse, urljoin
 from flask import session, g, flash, redirect, url_for, request, render_template
 
 
+def set_basic_configuration_and_views(app):
+    """
+    Set the configurations and functionality specific to this project:
+        1. Add a proper error page
+        2. Add the user functionality and views
+        3. Add the songs functionality and views
+        4. Set the start page to be songs/home
+
+    :param app: Which app to configure
+    """
+    if not app.config['DEBUG']:
+        install_secret_key(app)
+
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('404.html'), 404
+
+    from app.users.views import mod as users_module
+    app.register_blueprint(users_module)
+
+    from app.songs.views import mod as songs_module
+    app.register_blueprint(songs_module)
+
+    @app.route("/")
+    def index():
+        return redirect(url_for("songs.home"))
+
+
 def add_before_request(mod):
     """
-    pull user's profile from the database before every request are treated
+    Function to pull the current user's profile from the database before the request is treated.
+    It is added as a before_request function to the given blueprint module.
     """
-
     def before_request():
         g.user = None
         if 'user_id' in session:
+            # Do only import the User here, otherwise we will end up with cyclic dependencies.
             from app.users.models import User
             g.user = User.query.get(session['user_id'])
 
@@ -22,7 +52,15 @@ def add_before_request(mod):
 
 def requires_login(f):
     """
-    Function decorator to add a required logged in user to a flask route.
+    Function decorator to require a logged in user before accessing a wrapped flask route.
+    Use it with
+
+        @mod.route("/page/")
+        @requires_login
+        def route_for_page():
+            ...
+
+    to make /page/ only accessible for logged in users.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -35,6 +73,24 @@ def requires_login(f):
 
 
 def render_template_with_user(template_path, **kwargs):
+    """
+    Helper function to render the template behind the given template path, and replace the following
+    variables in this template:
+
+        1. If a user is logged in, {{ user }} is replaced by the current user.
+        2. If a download ID is set, download_id is set to is, otherwise to None.
+        3. Everything else given in the remaining keyword arguments.
+
+    Use it analogous to the render_template function by Flask:
+
+        @mod.route("/page/")
+        def route():
+            return render_template_with_user("template.html", variable=1, some_stuff="others")
+
+    :param template_path: Which template to render.
+    :param kwargs: Which other variables to replace in the template apart from the user and the download ID.
+    :return: the rendered template.
+    """
     if g.user:
         if "download_id" in session:
             download_id = session["download_id"]
@@ -46,12 +102,21 @@ def render_template_with_user(template_path, **kwargs):
 
 
 def is_safe_url(target):
+    """
+    TODO: Copy from where?
+    :param target:
+    :return:
+    """
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 
 def get_redirect_target():
+    """
+    TODO: Copy from where?
+    :return:
+    """
     for target in request.values.get('next'), request.referrer:
         if not target:
             continue
@@ -60,6 +125,12 @@ def get_redirect_target():
 
 
 def redirect_back_or(endpoint, **values):
+    """
+    TODO: Copy from where?
+    :param endpoint:
+    :param values:
+    :return:
+    """
     target = request.form.get('next')
     if not target or not is_safe_url(target):
         target = url_for(endpoint, **values)
@@ -67,7 +138,9 @@ def redirect_back_or(endpoint, **values):
 
 
 def install_secret_key(app, filename='secret_key'):
-    """Configure the SECRET_KEY from a file
+    """
+    TODO: Copy from where?
+    Configure the SECRET_KEY from a file
     in the instance directory.
 
     If the file does not exist, print instructions
@@ -86,21 +159,3 @@ def install_secret_key(app, filename='secret_key'):
         print('head -c 24 /dev/urandom > {filename}'.format(filename=filename))
         sys.exit(1)
 
-
-def set_basic_configuration_and_views(app):
-    if not app.config['DEBUG']:
-        install_secret_key(app)
-
-    @app.errorhandler(404)
-    def not_found(error):
-        return render_template('404.html'), 404
-
-    from app.users.views import mod as users_module
-    app.register_blueprint(users_module)
-
-    from app.songs.views import mod as songs_module
-    app.register_blueprint(songs_module)
-
-    @app.route("/")
-    def index():
-        return redirect(url_for("songs.home"))
