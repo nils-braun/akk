@@ -1,0 +1,32 @@
+#! /bin/sh
+# /etc/init.d/noip 
+
+### BEGIN INIT INFO
+# Provides:          akk
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start gunicorn for akk
+# Description:       Script stolen form www.stuffaboutcode.com which will start / stop gunicorn for the akk project.
+### END INIT INFO
+
+case "$1" in
+  start)
+    echo "Starting akk"
+    # run application you want to start
+    cd /home/pi/projects/akk
+    su -s /bin/bash -c "source venv/bin/activate && gunicorn --workers 3 --bind unix:/tmp/myproject.sock -m 007 wsgi --log-level debug" www-data > /var/log/gunicorn &
+    ;;
+  stop)
+    echo "Stopping akk"
+    # kill application you want to stop
+    sudo killall gunicorn
+    ;;
+  *)
+    echo "Usage: /etc/init.d/akk {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
