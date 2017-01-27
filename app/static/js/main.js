@@ -248,11 +248,11 @@ function make_search_query(search_url, query, sort_by, favourites, page) {
     }
 }
 
-function add_endless_scroll_binding(search_url, query, sort_by) {
+function add_endless_scroll_binding(search_url, query, sort_by, favourites) {
     $("#content-wrapper").scroll(function (e) {
         var elem = $(e.currentTarget);
         if (elem[0].scrollHeight - elem.scrollTop() < elem.outerHeight() + 100) {
-            make_search_query(search_url, query, sort_by, currentPage);
+            make_search_query(search_url, query, sort_by, favourites, currentPage);
         }
     })
 }
