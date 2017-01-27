@@ -16,7 +16,7 @@
         }
         
         $(document).ready(function() {
-            make_search_query("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}");
+            make_search_query("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
             add_reset_binding();
             add_audio_binding("{{ url_for("songs.serve_song") }}");
             add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}");
@@ -41,6 +41,7 @@
             </tr>
             </tbody>
         </table>
+        <input type="hidden" name="favourites" value="{{ favourites }}">
     </form>
 
     <div id="control-view">
@@ -48,31 +49,32 @@
         <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
         <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
         <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ download_id }})</a>
+        <a href="{{ favourites_url }}">{{ favourites_text }}</a>
     </div>
 
     <table id="song-list">
         <thead>
             <tr>
                 <td width="50px"></td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="title") }}';">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="title", favourites=favourites) }}';">
                     Song Title
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="artist") }}';">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="artist", favourites=favourites) }}';">
                     Artist Name
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="dance") }}';">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="dance", favourites=favourites) }}';">
                     Dance Name
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="label") }}';">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="label", favourites=favourites) }}';">
                     Label
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating") }}';" width="120px"
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px"
                 >Rating
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="duration") }}';" width="70px">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="duration", favourites=favourites) }}';" width="70px">
                     Duration
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="bpm") }}';" width="50px">
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="bpm", favourites=favourites) }}';" width="50px">
                     BPM
                 </td>
             </tr>

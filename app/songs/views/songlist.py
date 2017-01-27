@@ -1,6 +1,7 @@
 import json
 
 from flask import request
+from flask.helpers import url_for
 from sqlalchemy import func, desc
 
 from app import db
@@ -17,7 +18,20 @@ def add_songlist_views(mod):
         """
         query = request.args.get("query", default="")
         sort_by = request.args.get("sort_by", default="")
-        return render_template_with_user("songs/home.html", query=query, sort_by=sort_by)
+        favourites = request.args.get("favourites", default="False") == "True"
+
+        # TODO: Move to template
+        if favourites:
+            favourites_text = "Show all"
+        else:
+            favourites_text = "Show only my favourites"
+
+        favourites_url = url_for("songs.home", query=query, sort_by=sort_by, favourites=str(not favourites))
+
+        return render_template_with_user("songs/home.html", query=query, sort_by=sort_by,
+                                         favourites_text=favourites_text,
+                                         favourites=favourites,
+                                         favourites_url=favourites_url)
 
     @mod.route('/search/', methods=['GET'])
     @requires_login
@@ -32,6 +46,7 @@ def add_songlist_views(mod):
         page = request.args.get("page", default=0, type=int)
         query_string = request.args.get("query")
         sort_by = request.args.get("sort_by")
+        favourites = request.args.get("favourites", default="False") == "True"
 
         average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating")) \
             .group_by(Rating.song_id).subquery()
@@ -50,6 +65,9 @@ def add_songlist_views(mod):
             .group_by(Song.id) \
             .with_entities(Song, average_rating_for_songs.c.rating.label("rating"),
                            user_rating_for_songs.c.user_rating.label("user_rating"))
+
+        if favourites:
+            songs_with_rating = songs_with_rating.filter(user_rating_for_songs.c.user_rating >= 3)
 
         if sort_by == "title":
             ordering_tuples = Song.title
