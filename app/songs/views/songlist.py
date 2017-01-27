@@ -20,18 +20,8 @@ def add_songlist_views(mod):
         sort_by = request.args.get("sort_by", default="")
         favourites = request.args.get("favourites", default="False") == "True"
 
-        # TODO: Move to template
-        if favourites:
-            favourites_text = "Show all"
-        else:
-            favourites_text = "Show only my favourites"
-
-        favourites_url = url_for("songs.home", query=query, sort_by=sort_by, favourites=str(not favourites))
-
         return render_template_with_user("songs/home.html", query=query, sort_by=sort_by,
-                                         favourites_text=favourites_text,
-                                         favourites=favourites,
-                                         favourites_url=favourites_url)
+                                         favourites=favourites)
 
     @mod.route('/search/', methods=['GET'])
     @requires_login

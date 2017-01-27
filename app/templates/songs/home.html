@@ -49,7 +49,11 @@
         <a href="{{ url_for('songs.delete_artist') }}">Delete Artist</a>
         <a href="{{ url_for('songs.delete_dance') }}">Delete Dance</a>
         <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ download_id }})</a>
-        <a href="{{ favourites_url }}">{{ favourites_text }}</a>
+        {% if favourites %}
+            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="False") }}">Show all</a>
+        {% else %}
+            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="True") }}">Show only my favourites</a>
+        {% endif %}
     </div>
 
     <table id="song-list">
