@@ -87,17 +87,23 @@ class Song(db.Model):
     path = db.Column(db.Unicode(500), nullable=False, default="")
     duration = db.Column(db.Interval, nullable=False, default=timedelta())
     bpm = db.Column(db.Integer, nullable=False, default=0)
+    last_edit_date = db.Column(db.DateTime, nullable=True, default=None)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
     dance_id = db.Column(db.Integer, db.ForeignKey(Dance.__tablename__ + '.id'))
     creation_user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"))
+    last_edit_user_id = db.Column(db.Integer, db.ForeignKey(User.__tablename__ + ".id"), nullable=True, default=None)
 
     # Delete when artists is deleted
     artist = db.relationship(Artist, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
     # Delete when dance is deleted
     dance = db.relationship(Dance, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
     # Delete when user is deleted
-    creation_user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
+    creation_user = db.relationship(User, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'),
+                                    foreign_keys=[creation_user_id])
+    # Delete when user is deleted
+    last_edit_user = db.relationship(User, backref=db.backref("currently_editing_songs", uselist=True, cascade='delete,all'),
+                                     foreign_keys=[last_edit_user_id])
 
     labels = db.relationship(Label, secondary="songs_labels_to_songs")
 
