@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from flask import request, flash, url_for, g
 from mutagen.mp3 import MP3
@@ -199,3 +199,19 @@ def change_or_add_song(form, song=None):
             delete_unused_old_entities(old_artist, old_dance)
 
         delete_unused_only_labels(old_labels)
+
+
+def set_as_editing(song):
+    song.last_edit_user = g.user
+    song.last_edit_date = datetime.now()
+
+    db.session.merge(song)
+    db.session.commit()
+
+
+def unset_as_editing(song):
+    song.last_edit_user_id = None
+    song.last_edit_date = None
+
+    db.session.merge(song)
+    db.session.commit()
