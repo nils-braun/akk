@@ -58,7 +58,6 @@ def delete_unused_old_entities(old_artist, old_dance):
 
 def delete_unused_only_labels(labels):
     for label in labels:
-        print(label.name, label.id)
         related_songs_query = LabelsToSongs.query.filter_by(label_id=label.id)
         if related_songs_query.count() == 0:
             db.session.delete(label)
