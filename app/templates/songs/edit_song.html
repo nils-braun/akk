@@ -2,6 +2,7 @@
 {% block buttons %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.rating, class="input rating") }}
+    <div style="margin: 20px; font-weight: bold; text-align: center; width: 100%">{{ last_user_msg }}</div>
     <div id="note-viewer">
         <table id="comments">
         {% for comment in other_comments %}
