@@ -10,7 +10,7 @@ from app.songs.constants import SONG_PATH_FORMAT
 from app.songs.models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
 
 
-def delete_entity(FormClass, DataClass, name, song_argument):
+def edit_entity(FormClass, DataClass, name, song_argument):
     form = FormClass(request.values)
     next_url = get_redirect_target()
 
@@ -18,28 +18,40 @@ def delete_entity(FormClass, DataClass, name, song_argument):
     if form.validate_on_submit():
         entity = DataClass.query.filter_by(name=form.name.data).first()
         if entity:
-            filter_dict = {song_argument: entity.id}
-            data_to_delete = Song.query.filter_by(**filter_dict).all()
+            if form.sure_to_delete.data or form.unsure_to_delete.data:
+                filter_dict = {song_argument: entity.id}
+                data_to_delete = Song.query.filter_by(**filter_dict).all()
 
-            if form.sure_to_delete.data:
+                if form.sure_to_delete.data:
+                    old_artists_and_dances = [(song.artist, song.dance) for song in data_to_delete]
 
-                old_artists_and_dances = [(song.artist, song.dance) for song in data_to_delete]
+                    db.session.delete(entity)
+                    db.session.commit()
 
-                db.session.delete(entity)
-                db.session.commit()
+                    for artist, dance in old_artists_and_dances:
+                        delete_unused_old_entities(artist, dance)
 
-                for artist, dance in old_artists_and_dances:
-                    delete_unused_old_entities(artist, dance)
+                    flash('Successfully deleted %s' % entity.name)
+                    return redirect_back_or(url_for('songs.home'))
 
-                flash('Sucessfully deleted %s' % entity.name)
-                return redirect_back_or(url_for('songs.home'))
-            else:
-                flash('Are you sure you want to delete?')
-                form.sure_to_delete.data = True
+                else:
+                    flash('Are you sure you want to delete?')
+                    form.sure_to_delete.data = True
 
+            elif form.rename.data:
+                new_name = form.rename_name.data
+                if new_name:
+                    entity.name = new_name
+
+                    db.session.merge(entity)
+                    db.session.commit()
+
+                    return redirect_back_or(url_for('songs.home'))
+                else:
+                    flash("You have to provide a new name to rename")
         else:
             flash('No %s with this name' % name, 'error-message')
-    return render_template_with_user("songs/deletion_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
+    return render_template_with_user("songs/entity_edit_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
 
 
 def delete_unused_old_entities(old_artist, old_dance):

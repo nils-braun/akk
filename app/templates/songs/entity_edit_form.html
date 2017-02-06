@@ -12,6 +12,8 @@
     {% endif %}
     {% from "forms/macros.html" import render_field %}
     {{ render_field(form.name, class="input text") }}
+    {{ render_field(form.rename_name, class="input text") }}
     {{ form.unsure_to_delete(class="button") }}
     {{ form.sure_to_delete(class="button") }}
+    {{ form.rename(class="button") }}
 {% endblock %}

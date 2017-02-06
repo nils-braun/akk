@@ -61,22 +61,24 @@ class RatingField(Field):
         return self.data if self.data is not "nr" and self.data is not None else 0
 
 
-class DeletionForm(Form):
+class EntityEditForm(Form):
     """
     Form to delete a dance or an artist and every attached song.
     """
     sure_to_delete = SubmitField("Force delete")
     unsure_to_delete = SubmitField("Show Usage")
+    rename = SubmitField("Rename")
+    rename_name = StringField("New name")
 
 
-class DeleteArtistForm(DeletionForm):
+class EditArtistForm(EntityEditForm):
     """
     Form to delete an artist and every attached song.
     """
     name = CompletionField('Artist Name', [DataRequired()], column="artist")
 
 
-class DeleteDanceForm(DeletionForm):
+class EditDanceForm(EntityEditForm):
     """
     Form to delete a dance and every attached song.
     """

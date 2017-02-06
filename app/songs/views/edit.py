@@ -2,28 +2,28 @@ from flask import request, g, flash
 
 from app import db
 from app.functions import requires_login, get_redirect_target, redirect_back_or, render_template_with_user
-from app.songs.forms import DeleteArtistForm, DeleteDanceForm, CreateSongForm, EditSongForm
-from app.songs.functions import delete_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, \
+from app.songs.forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
+from app.songs.functions import edit_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, \
     delete_unused_only_labels, set_as_editing, unset_as_editing
 from app.songs.models import Artist, Dance, Song
 
 
 def add_song_edit_views(mod):
-    @mod.route('/delete_artist/', methods=['GET', 'POST'])
+    @mod.route('/edit_artist/', methods=['GET', 'POST'])
     @requires_login
-    def delete_artist():
+    def edit_artist():
         """
         Delete artist form
         """
-        return delete_entity(DeleteArtistForm, Artist, "artist", "artist_id")
+        return edit_entity(EditArtistForm, Artist, "artist", "artist_id")
 
-    @mod.route('/delete_dance/', methods=['GET', 'POST'])
+    @mod.route('/edit_dance/', methods=['GET', 'POST'])
     @requires_login
-    def delete_dance():
+    def edit_dance():
         """
         Delete dance form
         """
-        return delete_entity(DeleteDanceForm, Dance, "dance", "dance_id")
+        return edit_entity(EditDanceForm, Dance, "dance", "dance_id")
 
     @mod.route('/create_song/', methods=['GET', 'POST'])
     @requires_login
