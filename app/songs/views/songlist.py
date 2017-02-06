@@ -34,8 +34,8 @@ def add_songlist_views(mod):
         """
         page_size = request.args.get("page_size", default=100, type=int)
         page = request.args.get("page", default=0, type=int)
-        query_string = request.args.get("query")
-        sort_by = request.args.get("sort_by")
+        query_string = request.args.get("query", default="")
+        sort_by = request.args.get("sort_by", default="")
         favourites = request.args.get("favourites", default="False") == "True"
 
         average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating")) \
@@ -48,7 +48,8 @@ def add_songlist_views(mod):
                             Song.title.contains(query_string) |
                             Label.name.contains(query_string))
 
-        songs_with_queried_content = Song.query.join(Artist, Dance, LabelsToSongs).join(Label).filter(filter_condition)
+        songs_with_queried_content = Song.query.join(Artist, Dance).outerjoin(LabelsToSongs, Label)\
+            .filter(filter_condition)
         songs_with_rating = songs_with_queried_content \
             .outerjoin(average_rating_for_songs, Song.id == average_rating_for_songs.c.song_id) \
             .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id) \
