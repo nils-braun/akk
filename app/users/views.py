@@ -14,13 +14,15 @@ def logout():
     if g.user:
         del g.user
 
-        if "user_id" in session:
-            del session["user_id"]
+    if "user_id" in session:
+        session.pop('user_id', None)
 
-        if "download_id" in session:
-            del session["download_id"]
+    if "download_id" in session:
+        session.pop('download_id', None)
 
-        flash("Successfully logged out.")
+    flash("Successfully logged out.")
+
+    session.modified = True
 
     return redirect(url_for("users.login"))
 
