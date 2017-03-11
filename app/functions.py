@@ -2,7 +2,7 @@
 import os
 import sys
 from functools import wraps
-from urlparse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin
 
 from flask import session, g, flash, redirect, url_for, request, render_template
 
