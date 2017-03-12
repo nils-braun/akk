@@ -31,7 +31,7 @@ def edit_entity(FormClass, DataClass, name, song_argument):
                     for artist, dance in old_artists_and_dances:
                         delete_unused_old_entities(artist, dance)
 
-                    flash('Successfully deleted %s' % entity.name)
+                    flash(u'Successfully deleted {}'.format(entity.name))
                     return redirect_back_or(url_for('songs.home'))
 
                 else:
@@ -50,7 +50,7 @@ def edit_entity(FormClass, DataClass, name, song_argument):
                 else:
                     flash("You have to provide a new name to rename")
         else:
-            flash('No %s with this name' % name, 'error-message')
+            flash(u'No %s with this name {}'.format(name), 'error-message')
     return render_template_with_user("songs/entity_edit_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
 
 
@@ -58,12 +58,12 @@ def delete_unused_old_entities(old_artist, old_dance):
     if Song.query.filter_by(artist_id=old_artist.id).count() == 0:
         db.session.delete(old_artist)
 
-        flash('Deleted artist {} because no song is related any more.'.format(old_artist.name))
+        flash(u'Deleted artist {} because no song is related any more.'.format(old_artist.name))
 
     if Song.query.filter_by(dance_id=old_dance.id).count() == 0:
         db.session.delete(old_dance)
 
-        flash('Deleted dance {} because no song is related any more.'.format(old_dance.name))
+        flash(u'Deleted dance {} because no song is related any more.'.format(old_dance.name))
 
     db.session.commit()
 
@@ -74,7 +74,7 @@ def delete_unused_only_labels(labels):
         if related_songs_query.count() == 0:
             db.session.delete(label)
 
-            flash('Deleted label {} because no song is related any more.'.format(label.name))
+            flash(u'Deleted label {} because no song is related any more.'.format(label.name))
 
     db.session.commit()
 
@@ -87,12 +87,12 @@ def get_or_add_artist_and_dance(form):
     dance, dance_created_new = Dance.get_or_add_dance(form.dance_name.data)
 
     if dance_created_new:
-        flash("No dance with the name {dance_name}. Created a new one.".format(dance_name=dance.name))
+        flash(u"No dance with the name {dance_name}. Created a new one.".format(dance_name=dance.name))
 
     artist, artist_created_new = Artist.get_or_add_artist(form.artist_name.data)
 
     if artist_created_new:
-        flash("No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
+        flash(u"No artist with the name {artist_name}. Created a new one.".format(artist_name=artist.name))
 
     return artist, dance
 
@@ -108,7 +108,7 @@ def get_or_add_labels(form):
         labels.append(label)
 
         if label_created_new:
-            flash("No label with the name {label_name}. Created a new one.".format(label_name=label.name))
+            flash(u"No label with the name {label_name}. Created a new one.".format(label_name=label.name))
 
     return labels
 

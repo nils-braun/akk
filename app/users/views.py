@@ -46,7 +46,7 @@ def login():
             # the session can't be modified as it's signed,
             # it's a safe place to store the user id
             session['user_id'] = user.id
-            flash('Welcome %s' % user.name)
+            flash(u'Welcome {}'.format(user.name))
             return redirect_back_or('songs.home')
 
         flash('Wrong email or password', 'error-message')
