@@ -90,7 +90,7 @@ def add_song_edit_views(mod):
         other_comments = song.get_comments_except_user(g.user)
 
         last_user_msg = ""
-        if song.last_edit_user:
+        if song.last_edit_user and song.last_edit_user != g.user:
             last_user_msg = "This song was last opened by {user} on {editing_time}."
             last_user_msg = last_user_msg.format(user=song.last_edit_user.name, editing_time=song.last_edit_date.strftime("%d.%m.%Y %H:%M"))
 
