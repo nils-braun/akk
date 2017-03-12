@@ -1,8 +1,8 @@
 import json
 
 from flask import request
-from flask.helpers import url_for
 from sqlalchemy import func, desc
+from werkzeug.utils import unescape
 
 from app import db
 from app.functions import requires_login, render_template_with_user
@@ -34,7 +34,7 @@ def add_songlist_views(mod):
         """
         page_size = request.args.get("page_size", default=100, type=int)
         page = request.args.get("page", default=0, type=int)
-        query_string = request.args.get("query", default="")
+        query_string = unescape(request.args.get("query", default=""))
         sort_by = request.args.get("sort_by", default="")
         favourites = request.args.get("favourites", default="False") == "True"
 
