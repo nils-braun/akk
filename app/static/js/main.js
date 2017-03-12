@@ -46,7 +46,7 @@ $.widget("custom.rating", {
         if(ratingObject.options.changeable) {
             ratingHTMLElement.append("<input type='hidden' " +
                 "name='" + ratingHTMLElement.attr("name") + "' " +
-                "value='" + ratingObject.value() + "'>");
+                "value='" + ratingObject.data + "'>");
             
             ratingHTMLElement.append("<input type='button' " +
                 "class='unrate-star' value=''>");
@@ -79,7 +79,8 @@ $.widget("custom.rating", {
             });
             
             ratingHTMLElement.on("click", ".unrate-star", function () {
-               ratingObject.value(0);
+                ratingObject.data = 0;
+                ratingObject.element.find("input[type=hidden]").val(ratingObject.data);
             });
 
             ratingHTMLElement.on("mouseleave", function () {
@@ -100,13 +101,8 @@ $.widget("custom.rating", {
         ratingObject.currentStatus = number;
     },
 
-    value: function(value) {
-        if (value == undefined) {
-            return this.currentStatus;
-        } else {
-            this.data = value;
-            this.update(value);
-        }
+    value: function() {
+        return this.currentStatus;
     }
 });
 

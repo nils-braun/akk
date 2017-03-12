@@ -58,7 +58,7 @@ class RatingField(Field):
     widget = RatingInput()
 
     def _value(self):
-        return self.data if self.data is not "nr" and self.data is not None else 0
+        return self.data if self.data not in ["nr", None] else 0
 
 
 class EntityEditForm(Form):
