@@ -191,7 +191,7 @@ def change_or_add_song(form, song=None):
     song.bpm = form.bpm.data
     song.labels = labels
 
-    if song_is_new:
+    if not song_is_new:
         db.session.merge(song)
     else:
         db.session.add(song)
