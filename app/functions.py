@@ -1,9 +1,11 @@
 # Some general utility functions used throughout the project.
 import os
+import re
 import sys
 from functools import wraps
 from urllib.parse import urlparse, urljoin
 
+import unicodedata
 from flask import session, g, flash, redirect, url_for, request, render_template
 
 
@@ -40,6 +42,7 @@ def add_before_request(mod):
     Function to pull the current user's profile from the database before the request is treated.
     It is added as a before_request function to the given blueprint module.
     """
+
     def before_request():
         g.user = None
         if 'user_id' in session:
@@ -62,6 +65,7 @@ def requires_login(f):
 
     to make /page/ only accessible for logged in users.
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.user is None:
@@ -159,3 +163,13 @@ def install_secret_key(app, filename='secret_key'):
         print('head -c 24 /dev/urandom > {filename}'.format(filename=filename))
         sys.exit(1)
 
+
+def slugify(value):
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+
+    Stolen from http://stackoverflow.com/questions/295135/turn-a-string-into-a-valid-filename.
+    """
+    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    return re.sub(r'(?u)[^-\w. ]', '_', value).strip()

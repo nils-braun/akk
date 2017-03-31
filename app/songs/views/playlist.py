@@ -1,7 +1,7 @@
 from flask import request, send_from_directory, session
 
 from app import app
-from app.functions import requires_login, render_template_with_user, redirect_back_or
+from app.functions import requires_login, render_template_with_user, redirect_back_or, slugify
 from app.songs.constants import SONG_FILE_FORMAT
 from app.songs.models import Song
 
@@ -49,7 +49,7 @@ def add_playlist_views(mod):
             session["download_id"] += 1
 
             return send_from_directory(app.config["DATA_FOLDER"], song.path, as_attachment=True,
-                                       attachment_filename=attachment_filename)
+                                       attachment_filename=slugify(attachment_filename))
 
     @mod.route("/reset_download_id/")
     @requires_login
