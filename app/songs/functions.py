@@ -158,6 +158,11 @@ def upload_file_to_song(form, song):
             path, extension = os.path.splitext(file_path_to_save_to)
             file_path_to_save_to = path + "1" + extension
 
+        base_path, _ = os.path.split(file_path_to_save_to)
+
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
+
         uploaded_file.save(file_path_to_save_to)
         song.duration = get_song_duration(file_path_to_save_to)
         song.path = file_name
