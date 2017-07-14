@@ -2,7 +2,7 @@ from flask import request, send_from_directory, session
 
 from app import app
 from app.functions import requires_login, render_template_with_user, redirect_back_or, slugify
-from app.songs.constants import SONG_FILE_FORMAT
+from app.songs import constants
 from app.songs.models import Song
 
 
@@ -43,8 +43,11 @@ def add_playlist_views(mod):
             if "download_id" not in session:
                 session["download_id"] = 0
 
-            attachment_filename = ("{id} - " + SONG_FILE_FORMAT).format(
-                id=session["download_id"], title=song.title, artist_name=song.artist.name, dance_name=song.dance.name)
+            if song.bpm:
+                attachment_filename = constants.SONG_FILE_FORMAT_WITH_BPM.format(id=session["download_id"], song=song)
+            else:
+                attachment_filename = constants.SONG_FILE_FORMAT_WITHOUT_BPM.format(id=session["download_id"],
+                                                                                    song=song)
 
             session["download_id"] += 1
 
