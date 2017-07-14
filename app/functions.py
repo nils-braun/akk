@@ -99,7 +99,7 @@ def render_template_with_user(template_path, **kwargs):
         if "download_id" in session:
             download_id = session["download_id"]
         else:
-            download_id = None
+            download_id = 0
         return render_template(template_path, user=g.user, download_id=download_id, **kwargs)
     else:
         return render_template(template_path, **kwargs)
