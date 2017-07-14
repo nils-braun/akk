@@ -114,7 +114,7 @@ function addBindings() {
            var singleClass = classes[singleClassID];
            if(singleClass.startsWith("completion-")) {
                var column = singleClass.substring("completion-".length);
-               if(column == "all") {
+               if(column === "all") {
                    $(this).completion({
                        column: column, result: function (event, item) {
                            $(this).val(item.value);
@@ -139,7 +139,7 @@ function addBindings() {
         function subtractArray(a1, a2) {
             var result = [];
             for (var i = 0; i < a1.length; i++) {
-                if ($.inArray(a1[i], a2) == -1) {
+                if ($.inArray(a1[i], a2) === -1) {
                     result.push(a1[i]);
                 }
             }
@@ -188,7 +188,7 @@ function add_audio_binding(play_url) {
     var current_audio_file = undefined;
 
     function is_new_source(audio_file) {
-        return audio_to_play == undefined || current_audio_file != audio_file;
+        return audio_to_play === undefined || current_audio_file !== audio_file;
     }
 
     function start_playing(audio_file_name, play_control) {
@@ -209,7 +209,7 @@ function add_audio_binding(play_url) {
     }
 
     function stop_playing() {
-        if (audio_to_play != undefined) {
+        if (audio_to_play !== undefined) {
             audio_to_play.pause();
         }
         $("#content-songlist").find(".player-controls").removeClass("playing");
@@ -242,7 +242,7 @@ function make_search_query(search_url, query, sort_by, favourites, page) {
     } else {
         loading = true;
         $.get(search_url, {query: query, sort_by: sort_by, page: page, favourites: favourites}, function (data) {
-            if (data.length != 0) {
+            if (data.length !== 0) {
                 $("#song-list").find("tbody").append(data);
                 addBindings();
                 currentPage += 1;
