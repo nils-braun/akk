@@ -1,6 +1,6 @@
 import json
 
-from flask import request
+from flask import request, g
 from sqlalchemy import func, desc
 from werkzeug.utils import unescape
 
@@ -40,7 +40,8 @@ def add_songlist_views(mod):
 
         average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating")) \
             .group_by(Rating.song_id).subquery()
-        user_rating_for_songs = Song.query.join(Rating).with_entities(Rating.song_id, Rating.value.label("user_rating")) \
+        user_rating_for_songs = Song.query.join(Rating).with_entities(Rating.song_id, Rating.value.label("rating"))\
+            .filter(Rating.user_id == g.user.id)\
             .subquery()
 
         filter_condition = (Artist.name.contains(query_string) |
@@ -48,43 +49,43 @@ def add_songlist_views(mod):
                             Song.title.contains(query_string) |
                             Label.name.contains(query_string))
 
+        if favourites:
+            rating = user_rating_for_songs
+        else:
+            rating = average_rating_for_songs
+
         songs_with_queried_content = Song.query.join(Artist, Dance).outerjoin(LabelsToSongs, Label)\
             .filter(filter_condition)
         songs_with_rating = songs_with_queried_content \
-            .outerjoin(average_rating_for_songs, Song.id == average_rating_for_songs.c.song_id) \
-            .outerjoin(user_rating_for_songs, Song.id == user_rating_for_songs.c.song_id) \
+            .outerjoin(rating, Song.id == rating.c.song_id) \
             .group_by(Song.id) \
-            .with_entities(Song, average_rating_for_songs.c.rating.label("rating"),
-                           user_rating_for_songs.c.user_rating.label("user_rating"))
+            .with_entities(Song, rating.c.rating.label("rating"))
 
-        if favourites:
-            songs_with_rating = songs_with_rating.filter(user_rating_for_songs.c.user_rating >= 3)
+        ordering_tuples = ()
 
         if sort_by == "title":
-            ordering_tuples = Song.title
+            ordering_tuples += (Song.title, )
         elif sort_by == "artist":
-            ordering_tuples = Artist.name
+            ordering_tuples += (Artist.name, )
         elif sort_by == "dance":
-            ordering_tuples = Dance.name
+            ordering_tuples += (Dance.name, )
         elif sort_by == "label":
-            ordering_tuples = Label.name
+            ordering_tuples += (Label.name, )
         elif sort_by == "rating":
-            ordering_tuples = desc("rating")
+            ordering_tuples += (desc("rating"), )
         elif sort_by == "duration":
-            ordering_tuples = desc(Song.duration)
+            ordering_tuples += (desc(Song.duration), )
         elif sort_by == "bpm":
-            ordering_tuples = Song.bpm
-        else:
-            ordering_tuples = None
+            ordering_tuples += (Song.bpm, )
 
-        ordering_tuples = (ordering_tuples, desc("rating"), desc("user_rating"), Song.title, Dance.name)
+        ordering_tuples = ordering_tuples + (desc("rating"), Song.title, Dance.name)
 
         sorted_songs_with_rating = songs_with_rating.order_by(*ordering_tuples)
 
         songs = sorted_songs_with_rating.limit(page_size).offset(page * page_size).all()
 
-        songs = [(song, Song.get_rating(rating), Song.get_rating(user_rating))
-                 for song, rating, user_rating in songs]
+        songs = [(song, Song.get_rating(rating))
+                 for song, rating in songs]
 
         return render_template_with_user("songs/search_ajax.html", songs=songs)
 

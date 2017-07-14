@@ -50,9 +50,9 @@
         <a href="{{ url_for('songs.edit_dance') }}">Delete/Rename Dance</a>
         <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ download_id }})</a>
         {% if favourites %}
-            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="False") }}">Show all</a>
+            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="False") }}">Show average rating</a>
         {% else %}
-            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="True") }}">Show only my favourites</a>
+            <a href="{{ url_for("songs.home", query=query, sort_by="rating", favourites="True") }}">Show only my rating</a>
         {% endif %}
     </div>
 
@@ -61,25 +61,67 @@
             <tr>
                 <td width="50px"></td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="title", favourites=favourites) }}';">
-                    Song Title
+                    <span
+                    {% if sort_by == "title" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Song Title
+                    </span>
                 </td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="artist", favourites=favourites) }}';">
-                    Artist Name
+                    <span
+                    {% if sort_by == "artist" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Artist Name
+                    </span>
                 </td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="dance", favourites=favourites) }}';">
-                    Dance Name
+                    <span
+                    {% if sort_by == "dance" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Dance Name
+                    </span>
                 </td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="label", favourites=favourites) }}';">
-                    Label
+                    <span
+                    {% if sort_by == "label" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Label
+                    </span>
                 </td>
-                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px"
-                >Rating
+                <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px">
+                    <span
+                    {% if sort_by == "rating" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Rating
+                    </span>
                 </td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="duration", favourites=favourites) }}';" width="70px">
-                    Duration
+                    <span
+                    {% if sort_by == "duration" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Duration
+                    </span>
                 </td>
                 <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="bpm", favourites=favourites) }}';" width="50px">
-                    BPM
+                    <span
+                    {% if sort_by == "bpm" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        BPM
+                    </span>
                 </td>
             </tr>
         </thead>

@@ -1,5 +1,5 @@
 {% if songs|length > 0 %}
-    {% for song, rating, user_rating in songs %}
+    {% for song, rating in songs %}
         <tr class="songlist_row" data-id="{{ song.id }}">
             <td>
                 <div class="player-controls"></div>
