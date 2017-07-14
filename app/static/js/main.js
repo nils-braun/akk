@@ -195,6 +195,14 @@ function add_audio_binding(play_url) {
         audio_to_play = new Audio(audio_file_name);
         audio_to_play.play();
 
+        audio_to_play.onerror = function() {
+            $(play_control).removeClass("playing")
+        };
+
+        audio_to_play.onended = function() {
+            $(play_control).removeClass("playing")
+        };
+
         current_audio_file = audio_file_name;
 
         $(play_control).addClass("playing");
