@@ -19,12 +19,8 @@
         <div id="header">
             {% block header %}
                 {% if user is defined %}
-                    <a href="{{ url_for("songs.home") }}">Home</a>
-                    <a href="{{ url_for("users.logout") }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for("users.login") }}">Login</a>
+                    <a href="{{ url_for("songs.home") }}">Songs</a>
                 {% endif %}
-                <a href="{{ url_for("users.register") }}">Register</a>
             {% endblock %}
         </div>
         <div id="content-wrapper">
@@ -36,9 +32,8 @@
         <div id="footer">
             {% block footer %}
                 {% if user is defined %}
+                    <a href="{{ url_for("users.register") }}">Register other users</a>
                     <a href="{{ url_for("users.logout") }}">Logout (Currently logged in as {{ user.name }})</a>
-                {% else %}
-                    <a href="{{ url_for("users.login") }}">Login (Currently not logged in)</a>
                 {% endif %}
             {% endblock %}
         </div>
