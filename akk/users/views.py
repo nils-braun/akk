@@ -1,13 +1,16 @@
-from app import db
-from app.functions import render_template_with_user, requires_login, add_before_request
-from app.songs.functions import redirect_back_or, get_redirect_target
-from app.users.forms import RegisterForm, LoginForm
-from app.users.models import User
 from flask import Blueprint, request, flash, g, session, redirect, url_for
 from werkzeug import check_password_hash, generate_password_hash
 
+from akk.common.models import db
+from akk.common.helpers import redirect_back_or, get_redirect_target, requires_login, render_template_with_user, \
+    add_before_request
+
+from .forms import RegisterForm, LoginForm
+from .models import User
+
 mod = Blueprint('users', __name__, url_prefix='/users')
 add_before_request(mod)
+
 
 @mod.route('/logout/', methods=['GET', 'POST'])
 def logout():

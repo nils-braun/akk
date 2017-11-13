@@ -1,7 +1,7 @@
 from flask_wtf import Form
 from wtforms import StringField, SubmitField, HiddenField, TextAreaField, Field, FileField
 from wtforms.fields.core import IntegerField
-from wtforms.validators import DataRequired, regexp
+from wtforms.validators import DataRequired
 from wtforms.widgets.core import TextInput, HTMLString, Input
 
 

@@ -1,0 +1,15 @@
+{% if songs|length > 0 %}
+    {% for song in songs %}
+        <tr class="songlist_row" data-id="{{ song.id }}">
+            <td width="70px">
+                <div class="player-controls controls"></div>
+                <div class="download-controls controls"></div>
+                <div class="playlist-controls controls"></div>
+            </td>
+            <td>{{ song.dance.name }}</td>
+            <td>{{ song.title }}</td>
+            <td>{{ "%02.d" |format(song.duration.seconds / 60) }}:{{ "%02d" | format(song.duration.seconds % 60) }}</td>
+            <td>{{ "%d" |format(song.bpm) }}</td>
+        </tr>
+    {% endfor %}
+{% endif %}

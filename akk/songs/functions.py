@@ -4,10 +4,10 @@ from datetime import timedelta, datetime
 from flask import request, flash, url_for, g
 from mutagen.mp3 import MP3
 
-from app import db, app
-from app.functions import render_template_with_user, get_redirect_target, redirect_back_or
-from app.songs.constants import SONG_PATH_FORMAT
-from app.songs.models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
+from akk.common.models import db
+from akk.common.helpers import get_redirect_target, redirect_back_or, render_template_with_user
+from .constants import SONG_PATH_FORMAT
+from .models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
 
 
 def edit_entity(FormClass, DataClass, name, song_argument):

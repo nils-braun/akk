@@ -1,35 +1,56 @@
-import argparse
-import os
 from glob import glob
 
-import shell
-from app import *
-from app.songs.functions import get_song_duration
-from app.songs.models import Song, Artist, Dance, Label
-from app.users.models import User
+import click
+import os
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("user", help="User name to use for filling the DB.")
-    parser.add_argument("--base-path", help="Path to use for finding the files. If omitted, use the current pwd.",
-                        default=os.getcwd())
-    parser.add_argument("--no-replace", help="Do not replace the old database file.", action="store_true")
+from akk import create_app
+from akk.common.models import db
+from akk.songs.functions import get_song_duration
+from akk.songs.helpers import download_and_extract_bpm
+from akk.songs.models import Label, Dance, Artist, Song
+from akk.users.models import User
 
-    args = parser.parse_args()
+app = create_app("config.py")
 
+
+@app.cli.command()
+def create_db():
+    """
+    Convenience function to create the db file with all needed tables.
+    """
+    db.create_all()
+
+    user = User(u"test", "test@test.com", "pbkdf2:sha1:1000$VUu0UWDW$211afd0957df48d23553a119668dbc331b84c8cd")
+    db.session.add(user)
+    db.session.commit()
+
+
+@app.cli.command()
+@click.argument("song-name")
+@click.argument("artist-name")
+def test_bpm(song_name, artist_name):
+    bpm = download_and_extract_bpm(song_name, artist_name)
+
+    print(bpm)
+
+
+@app.cli.command()
+@click.argument("base-path")
+@click.argument("user")
+@click.option("--no-replace/--replace")
+def read_in_hdd(base_path, user, no_replace):
     if not os.path.exists("app.db"):
-        shell.create_db()
-    elif not args.no_replace:
+        create_db()
+    elif not no_replace:
         os.unlink("app.db")
-        shell.create_db()
+        create_db()
 
-    user = User.query.filter_by(name=args.user)
+    user = User.query.filter_by(name=user)
     if user.count() != 1:
         raise ValueError("User is not known")
 
     user = user.one()
 
-    base_path = args.base_path
     top_level_entries = [os.path.join(base_path, dir) for dir in os.listdir(base_path)]
     top_level_entries = filter(os.path.isdir, top_level_entries)
 
@@ -90,4 +111,3 @@ if __name__ == '__main__':
                 print("Added", added_counter, "song to the database")
 
                 db.session.commit()
-

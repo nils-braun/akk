@@ -1,11 +1,10 @@
 from flask import request, g, flash
 
-from app import db
-from app.functions import requires_login, get_redirect_target, redirect_back_or, render_template_with_user
-from app.songs.forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
-from app.songs.functions import edit_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, \
-    delete_unused_only_labels, set_as_editing, unset_as_editing
-from app.songs.models import Artist, Dance, Song
+from akk.common.helpers import get_redirect_target, redirect_back_or, requires_login, render_template_with_user
+from akk.common.models import db
+from ..forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
+from ..functions import edit_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, delete_unused_only_labels, set_as_editing, unset_as_editing
+from ..models import Artist, Dance, Song
 
 
 def add_song_edit_views(mod):

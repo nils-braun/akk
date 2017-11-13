@@ -1,9 +1,9 @@
-from flask import request, send_from_directory, session
+from flask import request, send_from_directory, session, current_app
 
-from app import app
-from app.functions import requires_login, render_template_with_user, redirect_back_or, slugify
-from app.songs import constants
-from app.songs.models import Song
+from akk.common.helpers import slugify, redirect_back_or, requires_login, render_template_with_user
+
+from ..models import Song
+from ..constants import SONG_FILE_FORMAT_WITHOUT_BPM, SONG_FILE_FORMAT_WITH_BPM
 
 
 def add_playlist_views(mod):
@@ -20,7 +20,7 @@ def add_playlist_views(mod):
         song = Song.query.filter_by(id=song_id).first()
 
         if song:
-            return send_from_directory(app.config["DATA_FOLDER"], song.path, as_attachment=False)
+            return send_from_directory(current_app.config["DATA_FOLDER"], song.path, as_attachment=False)
         else:
             return render_template_with_user("404.html"), 404
 
@@ -44,14 +44,13 @@ def add_playlist_views(mod):
                 session["download_id"] = 0
 
             if song.bpm:
-                attachment_filename = constants.SONG_FILE_FORMAT_WITH_BPM.format(id=session["download_id"], song=song)
+                attachment_filename = SONG_FILE_FORMAT_WITH_BPM.format(id=session["download_id"], song=song)
             else:
-                attachment_filename = constants.SONG_FILE_FORMAT_WITHOUT_BPM.format(id=session["download_id"],
-                                                                                    song=song)
+                attachment_filename = SONG_FILE_FORMAT_WITHOUT_BPM.format(id=session["download_id"], song=song)
 
             session["download_id"] += 1
 
-            return send_from_directory(app.config["DATA_FOLDER"], song.path, as_attachment=True,
+            return send_from_directory(current_app.config["DATA_FOLDER"], song.path, as_attachment=True,
                                        attachment_filename=slugify(attachment_filename))
 
     @mod.route("/reset_download_id/")

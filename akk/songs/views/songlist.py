@@ -4,9 +4,9 @@ from flask import request, g
 from sqlalchemy import func, desc
 from werkzeug.utils import unescape
 
-from app import db
-from app.functions import requires_login, render_template_with_user
-from app.songs.models import Rating, Song, Artist, Dance, Label, LabelsToSongs
+from akk.common.models import db
+from akk.common.helpers import requires_login, render_template_with_user
+from ..models import Rating, Song, Artist, Dance, Label, LabelsToSongs
 
 
 def add_songlist_views(mod):

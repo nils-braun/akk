@@ -3,9 +3,10 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import not_
 
-from app import db
-import app.songs.constants as SONGS
-from app.users.models import User
+from akk.common.models import db
+from akk.users.models import User
+
+from .constants import NOT_RATED_STRING
 
 
 class Dance(db.Model):
@@ -114,14 +115,14 @@ class Song(db.Model):
         if rating is not None:
             return "%d" % round(rating)
         else:
-            return SONGS.NOT_RATED_STRING
+            return NOT_RATED_STRING
 
     def get_user_rating(self, user):
         query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
         if query.count() > 0:
             return query.one().value
         else:
-            return SONGS.NOT_RATED_STRING
+            return NOT_RATED_STRING
 
     def get_comments_except_user(self, user):
         return Comment.query.filter(Comment.song_id==self.id, not_(Comment.user_id==user.id)).all()
