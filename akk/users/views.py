@@ -38,7 +38,7 @@ def login():
 
         # we use werzeug to validate user's password
         if user and check_password_hash(user.password, form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
             flash(u'Welcome {}'.format(user.name))
 
             return redirect_back_or('songs.home')
