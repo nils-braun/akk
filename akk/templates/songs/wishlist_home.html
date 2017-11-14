@@ -1,0 +1,93 @@
+{% extends "songs/base_home.html" %}
+{% block javascript %}
+    <script type="application/javascript">
+        function add_reset_binding() {
+            $("#search_form").on("click", "input[type=reset]", function () {
+                window.location = "{{ url_for("songs.home") }}";
+            });
+        }
+
+        function add_edit_binding(edit_url) {
+            $("#content-songlist").on("click", ".songlist_row", function () {
+                var song_id = $(this).attr("data-id");
+                window.location = edit_url + "?song_id=" + song_id;
+            });
+        }
+        
+        $(document).ready(function() {
+            make_search_query("{{ url_for("wishlist.search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
+            add_reset_binding();
+            add_endless_scroll_binding("{{ url_for("wishlist.search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
+            add_edit_binding("{{ url_for("wishlist.edit_song") }}");
+        });
+    </script>
+{% endblock %}
+
+{% block control_song_view %}
+
+    <div id="control-view">
+        <a href="{{ url_for('wishlist.create_song') }}">Add Song To Wishlist</a>
+        <a href="{{ url_for('wishlist.edit_artist') }}">Delete/Rename Artist</a>
+        <a href="{{ url_for('wishlist.edit_dance') }}">Delete/Rename Dance</a>
+        {% if favourites %}
+            <a href="{{ url_for("wishlist.home", query=query, sort_by=sort_by, favourites="False") }}">Show average rating</a>
+        {% else %}
+            <a href="{{ url_for("wishlist.home", query=query, sort_by="rating", favourites="True") }}">Show only my rating</a>
+        {% endif %}
+    </div>
+
+    <table id="song-list">
+        <thead>
+            <tr>
+                <td width="50px"></td>
+                <td onclick="window.location.href='{{ url_for("wishlist.home", query=query, sort_by="title", favourites=favourites) }}';">
+                    <span
+                    {% if sort_by == "title" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Song Title
+                    </span>
+                </td>
+                <td onclick="window.location.href='{{ url_for("wishlist.home", query=query, sort_by="artist", favourites=favourites) }}';">
+                    <span
+                    {% if sort_by == "artist" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Artist Name
+                    </span>
+                </td>
+                <td onclick="window.location.href='{{ url_for("wishlist.home", query=query, sort_by="dance", favourites=favourites) }}';">
+                    <span
+                    {% if sort_by == "dance" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Dance Name
+                    </span>
+                </td>
+                <td onclick="window.location.href='{{ url_for("wishlist.home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px">
+                    <span
+                    {% if sort_by == "rating" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        Rating
+                    </span>
+                </td>
+                <td onclick="window.location.href='{{ url_for("wishlist.home", query=query, sort_by="bpm", favourites=favourites) }}';" width="50px">
+                    <span
+                    {% if sort_by == "bpm" %}
+                        style="font-weight: bold"
+                    {% endif %}
+                    >
+                        BPM
+                    </span>
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+{% endblock %}

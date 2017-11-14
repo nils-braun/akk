@@ -38,7 +38,7 @@ def add_song_edit_views(mod):
         if form.validate_on_submit():
             change_or_add_song(form)
 
-            flash('Sucessfully added song')
+            flash('Successfully added song')
             return redirect_back_or('songs.home')
 
         return render_template("songs/create_song.html", form=form, next=next_url)
@@ -62,7 +62,7 @@ def add_song_edit_views(mod):
 
                 unset_as_editing(song)
 
-                flash('Sucessfully updated song')
+                flash('Successfully updated song')
 
                 return redirect_back_or('songs.home')
 

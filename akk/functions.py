@@ -26,6 +26,9 @@ def set_basic_configuration_and_views(app):
     from akk.songs.views import mod as songs_module
     app.register_blueprint(songs_module)
 
+    from akk.songs.views import wishlist_mod as wishlist_module
+    app.register_blueprint(wishlist_module)
+
     from akk.admin.views import admin
     admin.init_app(app)
 

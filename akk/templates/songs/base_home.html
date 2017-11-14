@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content_id %}content-songlist{% endblock %}
+{% block content %}
+    {% block javascript %}{% endblock %}
+
+    <form class="form" id="search_form">
+        <table>
+            <tbody>
+            <tr>
+                <td>
+                    <input title="" type="text" id="query" name="query" class="input text completion completion-all" value="{{ query }}">
+                </td>
+                <td width="200px">
+                    <input type="submit" value="Search" class="button">
+                </td>
+                <td width="200px">
+                    <input type="reset" value="Clear" class="button">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <input type="hidden" name="favourites" value="{{ favourites }}">
+    </form>
+
+
+    {% block control_song_view %}{% endblock %}
+{% endblock %}

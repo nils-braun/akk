@@ -89,6 +89,7 @@ class Song(db.Model):
     duration = db.Column(db.Interval, nullable=False, default=timedelta())
     bpm = db.Column(db.Integer, nullable=False, default=0)
     last_edit_date = db.Column(db.DateTime, nullable=True, default=None)
+    is_on_wishlist = db.Column(db.Boolean, nullable=False, default=False)
 
     artist_id = db.Column(db.Integer, db.ForeignKey(Artist.__tablename__ + '.id'))
     dance_id = db.Column(db.Integer, db.ForeignKey(Dance.__tablename__ + '.id'))

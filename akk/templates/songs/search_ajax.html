@@ -8,9 +8,13 @@
             <td>{{ song.title }}</td>
             <td>{{ song.artist.name }}</td>
             <td>{{ song.dance.name }}</td>
+        {% if request.endpoint == "songs.search" %}
             <td>{% for label in song.labels|sort(attribute="name", case_sensitive=True)%}<span style="background-color: {{ label.color }}" class="tag-span">{{ label.name }}</span>{% endfor %}</td>
+        {% endif %}
             <td><div class="rating" data-value="{{ rating }}"></div></td>
+        {% if request.endpoint == "songs.search" %}
             <td>{{ "%02.d" |format(song.duration.seconds / 60) }}:{{ "%02d" | format(song.duration.seconds % 60) }}</td>
+        {% endif %}
             <td>{{ "%d" |format(song.bpm) }}</td>
         </tr>
     {% endfor %}

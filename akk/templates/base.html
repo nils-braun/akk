@@ -7,6 +7,9 @@
             <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
             <link rel="stylesheet" type="text/css" href="/static/css/forms.css"/>
             <link rel="stylesheet" type="text/css" href="/static/css/songlist.css"/>
+            {% if request.endpoint and request.endpoint.startswith("wishlist.") %}
+                <link rel="stylesheet" type="text/css" href="/static/css/wishlist.css"/>
+            {% endif %}
         {% endblock %}
         {% block script %}
             <script src="/static/js/jquery-3.1.0.js" type="text/javascript" charset="utf-8"></script>
@@ -20,6 +23,8 @@
             {% block header %}
                 {% if current_user is defined %}
                     <a href="{{ url_for("songs.home") }}">Songs</a>
+                    <a href="{{ url_for("wishlist.home") }}">Wishlist</a>
+                    <a href="{{ url_for("admin.index") }}">Admin</a>
                 {% endif %}
             {% endblock %}
         </div>

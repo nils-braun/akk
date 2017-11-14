@@ -174,7 +174,9 @@ def upload_file_to_song(form, song):
 
 def change_or_add_song(form, song=None):
     artist, dance = get_or_add_artist_and_dance(form)
-    labels = get_or_add_labels(form)
+
+    if not request.endpoint.startswith("wishlist."):
+        labels = get_or_add_labels(form)
 
     if song is None:
         song = Song(creation_user=current_user)
@@ -195,7 +197,10 @@ def change_or_add_song(form, song=None):
     song.dance_id = dance.id
     song.title = form.title.data
     song.bpm = form.bpm.data
-    song.labels = labels
+    if not request.endpoint.startswith("wishlist."):
+        song.labels = labels
+    else:
+        song.is_on_wishlist = True
 
     if not song_is_new:
         db.session.merge(song)
@@ -210,13 +215,15 @@ def change_or_add_song(form, song=None):
     if hasattr(form, "rating"):
         Rating.set_add_or_delete_rating(song, current_user, form.rating.data)
 
-    upload_file_to_song(form, song)
+    if not request.endpoint.startswith("wishlist."):
+        upload_file_to_song(form, song)
 
     if not song_is_new:
         if artist != old_artist or dance != old_dance:
             delete_unused_old_entities(old_artist, old_dance)
 
-        delete_unused_only_labels(old_labels)
+        if not request.endpoint.startswith("wishlist."):
+            delete_unused_only_labels(old_labels)
 
 
 def set_as_editing(song):

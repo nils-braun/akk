@@ -20,8 +20,12 @@ def add_songlist_views(mod):
         sort_by = request.args.get("sort_by", default="")
         favourites = request.args.get("favourites", default="False") == "True"
 
-        return render_template("songs/home.html", query=query, sort_by=sort_by,
-                               favourites=favourites)
+        if request.endpoint.startswith("songs."):
+            return render_template("songs/songlist_home.html", query=query, sort_by=sort_by,
+                                   favourites=favourites)
+        else:
+            return render_template("songs/wishlist_home.html", query=query, sort_by=sort_by,
+                                   favourites=favourites)
 
     @mod.route('/search/', methods=['GET'])
     @login_required
@@ -48,6 +52,11 @@ def add_songlist_views(mod):
                             Dance.name.contains(query_string) |
                             Song.title.contains(query_string) |
                             Label.name.contains(query_string))
+
+        if request.endpoint.startswith("songs."):
+            filter_condition &= Song.is_on_wishlist.is_(False)
+        else:
+            filter_condition &= Song.is_on_wishlist.is_(True)
 
         if favourites:
             rating = user_rating_for_songs
