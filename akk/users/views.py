@@ -1,31 +1,27 @@
-from flask import Blueprint, request, flash, g, session, redirect, url_for
+from flask import Blueprint, request, flash, redirect, url_for, render_template
+from flask_login import login_user, logout_user, login_required
 from werkzeug import check_password_hash, generate_password_hash
 
 from akk.common.models import db
-from akk.common.helpers import redirect_back_or, get_redirect_target, requires_login, render_template_with_user, \
-    add_before_request
+from akk.common.helpers import redirect_back_or, get_redirect_target
 
 from .forms import RegisterForm, LoginForm
 from .models import User
 
 mod = Blueprint('users', __name__, url_prefix='/users')
-add_before_request(mod)
 
 
 @mod.route('/logout/', methods=['GET', 'POST'])
 def logout():
-    if g.user:
-        del g.user
+    """
+    Logout form
+    """
+    # TODO
+    # if "download_id" in session:
+    #     session.pop('download_id', None)
 
-    if "user_id" in session:
-        session.pop('user_id', None)
-
-    if "download_id" in session:
-        session.pop('download_id', None)
-
+    logout_user()
     flash("Successfully logged out.")
-
-    session.modified = True
 
     return redirect(url_for("users.login"))
 
@@ -35,29 +31,25 @@ def login():
     """
     Login form
     """
-    if g.user:
-        flash("You are already logged in!")
-        return redirect_back_or("songs.home")
-
     form = LoginForm(request.form)
     next_url = get_redirect_target()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+
         # we use werzeug to validate user's password
         if user and check_password_hash(user.password, form.password.data):
-            # the session can't be modified as it's signed,
-            # it's a safe place to store the user id
-            session['user_id'] = user.id
+            login_user(user)
             flash(u'Welcome {}'.format(user.name))
+
             return redirect_back_or('songs.home')
 
         flash('Wrong email or password', 'error-message')
-    return render_template_with_user("users/login.html", form=form, next=next_url)
+    return render_template("users/login.html", form=form, next=next_url)
 
 
 @mod.route('/register/', methods=['GET', 'POST'])
-@requires_login
+@login_required
 def register():
     """
     Registration Form
@@ -66,17 +58,11 @@ def register():
     next_url = get_redirect_target()
 
     if form.validate_on_submit():
-        # create an user instance not yet stored in the database
         user = User(name=form.name.data, email=form.email.data, password=generate_password_hash(form.password.data))
-        # Insert the record in our database and commit it
+
         db.session.add(user)
         db.session.commit()
 
-        # Log the user in, as he now has an id
-        session['user_id'] = user.id
-
-        # flash will display a message to the user
         flash('Thanks for registering')
-        # redirect user to the 'home' method of the user module.
         return redirect_back_or('songs.home')
-    return render_template_with_user("users/register.html", form=form, next=next_url)
+    return render_template("users/register.html", form=form, next=next_url)

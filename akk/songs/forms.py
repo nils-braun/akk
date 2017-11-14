@@ -1,4 +1,4 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, TextAreaField, Field, FileField
 from wtforms.fields.core import IntegerField
 from wtforms.validators import DataRequired
@@ -61,7 +61,7 @@ class RatingField(Field):
         return self.data if self.data not in ["nr", None] else 0
 
 
-class EntityEditForm(Form):
+class EntityEditForm(FlaskForm):
     """
     Form to delete a dance or an artist and every attached song.
     """
@@ -85,7 +85,7 @@ class EditDanceForm(EntityEditForm):
     name = CompletionField('Dance Name', [DataRequired()], column="dance")
 
 
-class CreateSongForm(Form):
+class CreateSongForm(FlaskForm):
     """
     Form to create a new song.
     """

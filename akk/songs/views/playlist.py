@@ -1,6 +1,7 @@
-from flask import request, send_from_directory, session, current_app
+from flask import request, send_from_directory, session, current_app, render_template
+from flask_login import login_required
 
-from akk.common.helpers import slugify, redirect_back_or, requires_login, render_template_with_user
+from akk.common.helpers import slugify, redirect_back_or
 
 from ..models import Song
 from ..constants import SONG_FILE_FORMAT_WITHOUT_BPM, SONG_FILE_FORMAT_WITH_BPM
@@ -8,7 +9,7 @@ from ..constants import SONG_FILE_FORMAT_WITHOUT_BPM, SONG_FILE_FORMAT_WITH_BPM
 
 def add_playlist_views(mod):
     @mod.route("/serve/", methods=['GET'])
-    @requires_login
+    @login_required
     def serve_song():
         """
         This page is called by the audio HTML element (created with javascript), when a song should be played.
@@ -22,10 +23,10 @@ def add_playlist_views(mod):
         if song:
             return send_from_directory(current_app.config["DATA_FOLDER"], song.path, as_attachment=False)
         else:
-            return render_template_with_user("404.html"), 404
+            return render_template("404.html"), 404
 
     @mod.route("/download/", methods=['GET'])
-    @requires_login
+    @login_required
     def download_song():
         """
         This page is called by the download button (created with javascript), when a song should be downloaded.
@@ -38,7 +39,7 @@ def add_playlist_views(mod):
         song = Song.query.filter_by(id=song_id).first()
 
         if not song:
-            return render_template_with_user("404.html"), 404
+            return render_template("404.html"), 404
         else:
             if "download_id" not in session:
                 session["download_id"] = 0
@@ -54,7 +55,7 @@ def add_playlist_views(mod):
                                        attachment_filename=slugify(attachment_filename))
 
     @mod.route("/reset_download_id/")
-    @requires_login
+    @login_required
     def reset_download_id():
         """
         This page resets the download ID. One link at the home points to that, which will

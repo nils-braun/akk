@@ -1,17 +1,17 @@
 import json
 
-from flask import request, g
+from flask import request, render_template
+from flask_login import login_required, current_user
 from sqlalchemy import func, desc
 from werkzeug.utils import unescape
 
 from akk.common.models import db
-from akk.common.helpers import requires_login, render_template_with_user
 from ..models import Rating, Song, Artist, Dance, Label, LabelsToSongs
 
 
 def add_songlist_views(mod):
     @mod.route('/home/', methods=['GET'])
-    @requires_login
+    @login_required
     def home():
         """
         The home screen with the queried songlist.
@@ -20,11 +20,11 @@ def add_songlist_views(mod):
         sort_by = request.args.get("sort_by", default="")
         favourites = request.args.get("favourites", default="False") == "True"
 
-        return render_template_with_user("songs/home.html", query=query, sort_by=sort_by,
-                                         favourites=favourites)
+        return render_template("songs/home.html", query=query, sort_by=sort_by,
+                               favourites=favourites)
 
     @mod.route('/search/', methods=['GET'])
-    @requires_login
+    @login_required
     def search():
         """
         This page is called by AJAX (javascript) on the home page, to get the
@@ -40,8 +40,8 @@ def add_songlist_views(mod):
 
         average_rating_for_songs = db.session.query(Rating.song_id, func.avg(Rating.value).label("rating")) \
             .group_by(Rating.song_id).subquery()
-        user_rating_for_songs = Song.query.join(Rating).with_entities(Rating.song_id, Rating.value.label("rating"))\
-            .filter(Rating.user_id == g.user.id)\
+        user_rating_for_songs = Song.query.join(Rating).with_entities(Rating.song_id, Rating.value.label("rating")) \
+            .filter(Rating.user_id == current_user.id) \
             .subquery()
 
         filter_condition = (Artist.name.contains(query_string) |
@@ -54,7 +54,7 @@ def add_songlist_views(mod):
         else:
             rating = average_rating_for_songs
 
-        songs_with_queried_content = Song.query.join(Artist, Dance).outerjoin(LabelsToSongs, Label)\
+        songs_with_queried_content = Song.query.join(Artist, Dance).outerjoin(LabelsToSongs, Label) \
             .filter(filter_condition)
         songs_with_rating = songs_with_queried_content \
             .outerjoin(rating, Song.id == rating.c.song_id) \
@@ -64,19 +64,19 @@ def add_songlist_views(mod):
         ordering_tuples = ()
 
         if sort_by == "title":
-            ordering_tuples += (Song.title, )
+            ordering_tuples += (Song.title,)
         elif sort_by == "artist":
-            ordering_tuples += (Artist.name, )
+            ordering_tuples += (Artist.name,)
         elif sort_by == "dance":
-            ordering_tuples += (Dance.name, )
+            ordering_tuples += (Dance.name,)
         elif sort_by == "label":
-            ordering_tuples += (Label.name, )
+            ordering_tuples += (Label.name,)
         elif sort_by == "rating":
-            ordering_tuples += (desc("rating"), )
+            ordering_tuples += (desc("rating"),)
         elif sort_by == "duration":
-            ordering_tuples += (desc(Song.duration), )
+            ordering_tuples += (desc(Song.duration),)
         elif sort_by == "bpm":
-            ordering_tuples += (Song.bpm, )
+            ordering_tuples += (Song.bpm,)
 
         ordering_tuples = ordering_tuples + (desc("rating"), Song.title, Dance.name)
 
@@ -87,10 +87,10 @@ def add_songlist_views(mod):
         songs = [(song, Song.get_rating(rating))
                  for song, rating in songs]
 
-        return render_template_with_user("songs/search_ajax.html", songs=songs)
+        return render_template("songs/search_ajax.html", songs=songs)
 
     @mod.route("/completion/", methods=['GET'])
-    @requires_login
+    @login_required
     def completion():
         """
         This page is called by AJAX (javascript) on every custom completion element, to get the list of
@@ -114,5 +114,5 @@ def add_songlist_views(mod):
             result += [song.title for song in Song.query.filter(Song.title.contains(term)).limit(10).all()]
             result += [label.name for label in Label.query.filter(Label.name.contains(term)).limit(10).all()]
         else:
-            return render_template_with_user("404.html"), 404
+            return render_template("404.html"), 404
         return json.dumps([{"label": label} for label in set(result)])

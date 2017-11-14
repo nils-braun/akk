@@ -18,7 +18,7 @@
     <body>
         <div id="header">
             {% block header %}
-                {% if user is defined %}
+                {% if current_user is defined %}
                     <a href="{{ url_for("songs.home") }}">Songs</a>
                 {% endif %}
             {% endblock %}
@@ -31,9 +31,9 @@
         </div>
         <div id="footer">
             {% block footer %}
-                {% if user is defined %}
+                {% if current_user is defined %}
                     <a href="{{ url_for("users.register") }}">Register other users</a>
-                    <a href="{{ url_for("users.logout") }}">Logout (Currently logged in as {{ user.name }})</a>
+                    <a href="{{ url_for("users.logout") }}">Logout (Currently logged in as {{ current_user.name }})</a>
                 {% endif %}
             {% endblock %}
         </div>

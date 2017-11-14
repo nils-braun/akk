@@ -26,6 +26,12 @@ def set_basic_configuration_and_views(app):
     from akk.songs.views import mod as songs_module
     app.register_blueprint(songs_module)
 
+    from akk.admin.views import admin
+    admin.init_app(app)
+
+    from akk.extensions.users import login_manager
+    login_manager.init_app(app)
+
     @app.route("/")
     def index():
         return redirect(url_for("songs.home"))

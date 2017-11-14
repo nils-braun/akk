@@ -1,11 +1,12 @@
 import os
 from datetime import timedelta, datetime
 
-from flask import request, flash, url_for, g
+from flask import request, flash, url_for, render_template, current_app
+from flask_login import current_user
 from mutagen.mp3 import MP3
 
 from akk.common.models import db
-from akk.common.helpers import get_redirect_target, redirect_back_or, render_template_with_user
+from akk.common.helpers import get_redirect_target, redirect_back_or
 from .constants import SONG_PATH_FORMAT
 from .models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
 
@@ -51,7 +52,7 @@ def edit_entity(FormClass, DataClass, name, song_argument):
                     flash("You have to provide a new name to rename")
         else:
             flash(u'No %s with this name {}'.format(name), 'error-message')
-    return render_template_with_user("songs/entity_edit_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
+    return render_template("songs/entity_edit_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
 
 
 def delete_unused_old_entities(old_artist, old_dance):
@@ -122,7 +123,7 @@ def create_file_path(form):
     file_name = SONG_PATH_FORMAT.format(dance_name=form.dance_name.data,
                                         artist_name=form.artist_name.data,
                                         title=form.title.data)
-    upload_path = os.path.join(app.root_path, app.config["DATA_FOLDER"])
+    upload_path = os.path.join(current_app.root_path, current_app.config["DATA_FOLDER"])
     file_path_to_save_to = os.path.join(upload_path, file_name)
     return file_name, file_path_to_save_to
 
@@ -137,12 +138,12 @@ def set_form_from_song(song_id, form):
     form.title.data = song.title
     form.artist_name.data = song.artist.name
     form.dance_name.data = song.dance.name
-    form.rating.data = song.get_user_rating(g.user)
+    form.rating.data = song.get_user_rating(current_user)
     form.path.data = song.path
     form.bpm.data = song.bpm
     form.labels.data = ",".join(sorted([label.name for label in song.labels]))
 
-    user_comment = song.get_user_comment(g.user)
+    user_comment = song.get_user_comment(current_user)
     if user_comment:
         form.note.data = user_comment.note
 
@@ -176,7 +177,7 @@ def change_or_add_song(form, song=None):
     labels = get_or_add_labels(form)
 
     if song is None:
-        song = Song(creation_user=g.user)
+        song = Song(creation_user=current_user)
         song_is_new = True
 
         old_artist = None
@@ -204,10 +205,10 @@ def change_or_add_song(form, song=None):
     db.session.commit()
 
     if hasattr(form, "note"):
-        Comment.set_or_add_comment(song, g.user, form.note.data)
+        Comment.set_or_add_comment(song, current_user, form.note.data)
 
     if hasattr(form, "rating"):
-        Rating.set_add_or_delete_rating(song, g.user, form.rating.data)
+        Rating.set_add_or_delete_rating(song, current_user, form.rating.data)
 
     upload_file_to_song(form, song)
 
@@ -219,7 +220,7 @@ def change_or_add_song(form, song=None):
 
 
 def set_as_editing(song):
-    song.last_edit_user = g.user
+    song.last_edit_user = current_user
     song.last_edit_date = datetime.now()
 
     db.session.merge(song)

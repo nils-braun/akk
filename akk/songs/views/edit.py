@@ -1,15 +1,17 @@
-from flask import request, g, flash
+from flask import request, flash, render_template
+from flask_login import login_required, current_user
 
-from akk.common.helpers import get_redirect_target, redirect_back_or, requires_login, render_template_with_user
+from akk.common.helpers import get_redirect_target, redirect_back_or
 from akk.common.models import db
 from ..forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
-from ..functions import edit_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, delete_unused_only_labels, set_as_editing, unset_as_editing
+from ..functions import edit_entity, delete_unused_old_entities, set_form_from_song, change_or_add_song, \
+    delete_unused_only_labels, set_as_editing, unset_as_editing
 from ..models import Artist, Dance, Song
 
 
 def add_song_edit_views(mod):
     @mod.route('/edit_artist/', methods=['GET', 'POST'])
-    @requires_login
+    @login_required
     def edit_artist():
         """
         Delete artist form
@@ -17,7 +19,7 @@ def add_song_edit_views(mod):
         return edit_entity(EditArtistForm, Artist, "artist", "artist_id")
 
     @mod.route('/edit_dance/', methods=['GET', 'POST'])
-    @requires_login
+    @login_required
     def edit_dance():
         """
         Delete dance form
@@ -25,7 +27,7 @@ def add_song_edit_views(mod):
         return edit_entity(EditDanceForm, Dance, "dance", "dance_id")
 
     @mod.route('/create_song/', methods=['GET', 'POST'])
-    @requires_login
+    @login_required
     def create_song():
         """
         Create new song form
@@ -39,10 +41,10 @@ def add_song_edit_views(mod):
             flash('Sucessfully added song')
             return redirect_back_or('songs.home')
 
-        return render_template_with_user("songs/create_song.html", form=form, next=next_url)
+        return render_template("songs/create_song.html", form=form, next=next_url)
 
     @mod.route('/edit_song/', methods=['GET', 'POST'])
-    @requires_login
+    @login_required
     def edit_song():
         """
         Edit or delete a song
@@ -84,16 +86,16 @@ def add_song_edit_views(mod):
             song = set_form_from_song(song_id, form)
 
             if not song:
-                return render_template_with_user("404.html"), 404
+                return render_template("404.html"), 404
 
-        other_comments = song.get_comments_except_user(g.user)
+        other_comments = song.get_comments_except_user(current_user)
 
         last_user_msg = ""
-        if song.last_edit_user and song.last_edit_user != g.user:
+        if song.last_edit_user and song.last_edit_user != current_user:
             last_user_msg = "This song was last opened by {user} on {editing_time}."
             last_user_msg = last_user_msg.format(user=song.last_edit_user.name, editing_time=song.last_edit_date.strftime("%d.%m.%Y %H:%M"))
 
         set_as_editing(song)
 
-        return render_template_with_user("songs/edit_song.html", form=form, other_comments=other_comments,
+        return render_template("songs/edit_song.html", form=form, other_comments=other_comments,
                                          next=next_url, last_user_msg=last_user_msg)

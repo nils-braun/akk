@@ -8,7 +8,7 @@
         {% for comment in other_comments %}
             <tr><td class="comment-name">{{ comment.user.name }} said:</td><td>{{ comment.note }}</td></tr>
         {% endfor %}
-        <tr><td class="comment-name">{{ user.name }} said:</td><td>{{ form.note(class="input textarea comment-content") }}</td></tr>
+        <tr><td class="comment-name">{{ current_user.name }} said:</td><td>{{ form.note(class="input textarea comment-content") }}</td></tr>
         </table>
 
     </div>

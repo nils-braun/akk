@@ -1,11 +1,10 @@
 import os
 import re
 import sys
-from functools import wraps
 from urllib.parse import urlparse, urljoin
 import unicodedata
 
-from flask import request, url_for, redirect, g, flash, session, render_template
+from flask import request, url_for, redirect
 
 
 def is_safe_url(target):
@@ -76,70 +75,3 @@ def install_secret_key(app, filename='secret_key'):
             print('mkdir -p {filename}'.format(filename=full_path))
         print('head -c 24 /dev/urandom > {filename}'.format(filename=filename))
         sys.exit(1)
-
-
-def requires_login(f):
-    """
-    Function decorator to require a logged in user before accessing a wrapped flask route.
-    Use it with
-
-        @mod.route("/page/")
-        @requires_login
-        def route_for_page():
-            ...
-
-    to make /page/ only accessible for logged in users.
-    """
-
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if g.user is None:
-            flash(u'You need to be signed in for this page.')
-            return redirect(url_for('users.login'))
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
-def render_template_with_user(template_path, **kwargs):
-    """
-    Helper function to render the template behind the given template path, and replace the following
-    variables in this template:
-
-        1. If a user is logged in, {{ user }} is replaced by the current user.
-        2. If a download ID is set, download_id is set to is, otherwise to None.
-        3. Everything else given in the remaining keyword arguments.
-
-    Use it analogous to the render_template function by Flask:
-
-        @mod.route("/page/")
-        def route():
-            return render_template_with_user("template.html", variable=1, some_stuff="others")
-
-    :param template_path: Which template to render.
-    :param kwargs: Which other variables to replace in the template apart from the user and the download ID.
-    :return: the rendered template.
-    """
-    if g.user:
-        if "download_id" in session:
-            download_id = session["download_id"]
-        else:
-            download_id = 0
-        return render_template(template_path, user=g.user, download_id=download_id, **kwargs)
-    else:
-        return render_template(template_path, **kwargs)
-
-
-def add_before_request(mod):
-    """
-    Function to pull the current user's profile from the database before the request is treated.
-    It is added as a before_request function to the given blueprint module.
-    """
-
-    def before_request():
-        g.user = None
-        if 'user_id' in session:
-            from akk.users.models import User
-            g.user = User.query.get(session['user_id'])
-
-    mod.before_request(before_request)

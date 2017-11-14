@@ -1,7 +1,9 @@
+from flask_login import UserMixin
+
 from akk.common.models import db
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """
     Class representing the users.
     """
