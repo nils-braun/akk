@@ -48,7 +48,7 @@
         <a href="{{ url_for('songs.create_song') }}">Add Song</a>
         <a href="{{ url_for('songs.edit_artist') }}">Delete/Rename Artist</a>
         <a href="{{ url_for('songs.edit_dance') }}">Delete/Rename Dance</a>
-        <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ download_id }})</a>
+        <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ session["download_id"] or 0 }})</a>
         {% if favourites %}
             <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="False") }}">Show average rating</a>
         {% else %}

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, flash, redirect, url_for, render_template
+from flask import Blueprint, request, flash, redirect, url_for, render_template, session
 from flask_login import login_user, logout_user, login_required
 from werkzeug import check_password_hash, generate_password_hash
 
@@ -16,9 +16,8 @@ def logout():
     """
     Logout form
     """
-    # TODO
-    # if "download_id" in session:
-    #     session.pop('download_id', None)
+    if "download_id" in session:
+        session.pop('download_id', None)
 
     logout_user()
     flash("Successfully logged out.")
