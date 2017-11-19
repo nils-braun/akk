@@ -4,7 +4,7 @@
     <script type="application/javascript">
         function add_reset_binding() {
             $("#search_form").on("click", "input[type=reset]", function () {
-                window.location = "{{ url_for("songs.home") }}";
+                window.location = "{{ url_for("SongsView:home") }}";
             });
         }
 
@@ -16,26 +16,26 @@
         }
 
         $(document).ready(function() {
-            make_search_query("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
+            make_search_query("{{ url_for("SongsView:search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
             add_reset_binding();
-            add_audio_binding("{{ url_for("songs.serve_song") }}");
-            add_endless_scroll_binding("{{ url_for("songs.search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
-            add_edit_binding("{{ url_for("songs.edit_song") }}");
-            add_download_binding("{{ url_for("songs.download_song") }}");
+            add_audio_binding("{{ url_for("SongsView:serve_song") }}");
+            add_endless_scroll_binding("{{ url_for("SongsView:search") }}", "{{ query }}", "{{ sort_by }}", "{{ favourites }}");
+            add_edit_binding("{{ url_for("SongsView:edit_song") }}");
+            add_download_binding("{{ url_for("SongsView:download_song") }}");
         });
     </script>
 {% endblock %}
 
 {% block control_song_view %}
 <div id="control-view">
-        <a href="{{ url_for('songs.create_song') }}">Add Song</a>
-        <a href="{{ url_for('songs.edit_artist') }}">Delete/Rename Artist</a>
-        <a href="{{ url_for('songs.edit_dance') }}">Delete/Rename Dance</a>
-        <a href="{{ url_for('songs.reset_download_id') }}">Reset Download Counter ({{ session["download_id"] or 0 }})</a>
+        <a href="{{ url_for('SongsView:create_song') }}">Add Song</a>
+        <a href="{{ url_for('SongsView:edit_artist') }}">Delete/Rename Artist</a>
+        <a href="{{ url_for('SongsView:edit_dance') }}">Delete/Rename Dance</a>
+        <a href="{{ url_for('SongsView:reset_download_id') }}">Reset Download Counter ({{ session["download_id"] or 0 }})</a>
         {% if favourites %}
-            <a href="{{ url_for("songs.home", query=query, sort_by=sort_by, favourites="False") }}">Show average rating</a>
+            <a href="{{ url_for("SongsView:home", query=query, sort_by=sort_by, favourites="False") }}">Show average rating</a>
         {% else %}
-            <a href="{{ url_for("songs.home", query=query, sort_by="rating", favourites="True") }}">Show only my rating</a>
+            <a href="{{ url_for("SongsView:home", query=query, sort_by="rating", favourites="True") }}">Show only my rating</a>
         {% endif %}
 </div>
 
@@ -43,7 +43,7 @@
     <thead>
         <tr>
             <td width="50px"></td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="title", favourites=favourites) }}';">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="title", favourites=favourites) }}';">
                 <span
                 {% if sort_by == "title" %}
                     style="font-weight: bold"
@@ -52,7 +52,7 @@
                     Song Title
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="artist", favourites=favourites) }}';">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="artist", favourites=favourites) }}';">
                 <span
                 {% if sort_by == "artist" %}
                     style="font-weight: bold"
@@ -61,7 +61,7 @@
                     Artist Name
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="dance", favourites=favourites) }}';">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="dance", favourites=favourites) }}';">
                 <span
                 {% if sort_by == "dance" %}
                     style="font-weight: bold"
@@ -70,7 +70,7 @@
                     Dance Name
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="label", favourites=favourites) }}';">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="label", favourites=favourites) }}';">
                 <span
                 {% if sort_by == "label" %}
                     style="font-weight: bold"
@@ -79,7 +79,7 @@
                     Label
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="rating", favourites=favourites) }}';" width="120px">
                 <span
                 {% if sort_by == "rating" %}
                     style="font-weight: bold"
@@ -88,7 +88,7 @@
                     Rating
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="duration", favourites=favourites) }}';" width="70px">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="duration", favourites=favourites) }}';" width="70px">
                 <span
                 {% if sort_by == "duration" %}
                     style="font-weight: bold"
@@ -97,7 +97,7 @@
                     Duration
                 </span>
             </td>
-            <td onclick="window.location.href='{{ url_for("songs.home", query=query, sort_by="bpm", favourites=favourites) }}';" width="50px">
+            <td onclick="window.location.href='{{ url_for("SongsView:home", query=query, sort_by="bpm", favourites=favourites) }}';" width="50px">
                 <span
                 {% if sort_by == "bpm" %}
                     style="font-weight: bold"

@@ -1,46 +1,7 @@
 import os
 import re
 import sys
-from urllib.parse import urlparse, urljoin
 import unicodedata
-
-from flask import request, url_for, redirect
-
-
-def is_safe_url(target):
-    """
-    TODO: Copy from where?
-    :param target:
-    :return:
-    """
-    ref_url = urlparse(request.host_url)
-    test_url = urlparse(urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
-
-
-def get_redirect_target():
-    """
-    TODO: Copy from where?
-    :return:
-    """
-    for target in request.values.get('next'), request.referrer:
-        if not target:
-            continue
-        if is_safe_url(target):
-            return target
-
-
-def redirect_back_or(endpoint, **values):
-    """
-    TODO: Copy from where?
-    :param endpoint:
-    :param values:
-    :return:
-    """
-    target = request.form.get('next')
-    if not target or not is_safe_url(target):
-        target = url_for(endpoint, **values)
-    return redirect(target)
 
 
 def slugify(value):

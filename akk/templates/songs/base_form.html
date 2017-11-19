@@ -7,7 +7,7 @@
         {% endblock %}
         <input type="hidden" value="{{ next or '' }}" name="next">
         <input type="button"
-               onclick="window.location='{{ next or url_for("songs.home") }}';"
+               onclick="window.location='{{ next or url_for("SongsView:home") }}';"
                value="Abort" class="button red">
     </form>
 {% endblock %}

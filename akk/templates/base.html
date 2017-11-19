@@ -7,7 +7,7 @@
             <link rel="stylesheet" type="text/css" href="/static/css/main.css"/>
             <link rel="stylesheet" type="text/css" href="/static/css/forms.css"/>
             <link rel="stylesheet" type="text/css" href="/static/css/songlist.css"/>
-            {% if request.endpoint and request.endpoint.startswith("wishlist.") %}
+            {% if request.endpoint and request.endpoint.startswith("WishlistView:") %}
                 <link rel="stylesheet" type="text/css" href="/static/css/wishlist.css"/>
             {% endif %}
         {% endblock %}
@@ -22,8 +22,8 @@
         <div id="header">
             {% block header %}
                 {% if current_user is defined %}
-                    <a href="{{ url_for("songs.home") }}">Songs</a>
-                    <a href="{{ url_for("wishlist.home") }}">Wishlist</a>
+                    <a href="{{ url_for("SongsView:home") }}">Songs</a>
+                    <a href="{{ url_for("WishlistView:home") }}">Wishlist</a>
                     <a href="{{ url_for("admin.index") }}">Admin</a>
                 {% endif %}
             {% endblock %}
@@ -37,8 +37,8 @@
         <div id="footer">
             {% block footer %}
                 {% if current_user is defined %}
-                    <a href="{{ url_for("users.register") }}">Register other users</a>
-                    <a href="{{ url_for("users.logout") }}">Logout (Currently logged in as {{ current_user.name }})</a>
+                    <a href="{{ url_for("UsersView:register_user") }}">Register other users</a>
+                    <a href="{{ url_for("UsersView:logout") }}">Logout (Currently logged in as {{ current_user.name }})</a>
                 {% endif %}
             {% endblock %}
         </div>

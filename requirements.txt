@@ -3,6 +3,7 @@ flask-sqlalchemy
 flask-wtf
 flask-login
 flask-admin
+flask-classy
 gunicorn
 mutagen
 requests

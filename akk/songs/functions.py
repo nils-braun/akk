@@ -1,58 +1,13 @@
 import os
 from datetime import timedelta, datetime
 
-from flask import request, flash, url_for, render_template, current_app
+from flask import request, flash, current_app
 from flask_login import current_user
 from mutagen.mp3 import MP3
 
 from akk.common.models import db
-from akk.common.helpers import get_redirect_target, redirect_back_or
 from .constants import SONG_PATH_FORMAT
 from .models import Song, Dance, Artist, Rating, Comment, Label, LabelsToSongs
-
-
-def edit_entity(FormClass, DataClass, name, song_argument):
-    form = FormClass(request.values)
-    next_url = get_redirect_target()
-
-    data_to_delete = []
-    if form.validate_on_submit():
-        entity = DataClass.query.filter_by(name=form.name.data).first()
-        if entity:
-            if form.sure_to_delete.data or form.unsure_to_delete.data:
-                filter_dict = {song_argument: entity.id}
-                data_to_delete = Song.query.filter_by(**filter_dict).all()
-
-                if form.sure_to_delete.data:
-                    old_artists_and_dances = [(song.artist, song.dance) for song in data_to_delete]
-
-                    db.session.delete(entity)
-                    db.session.commit()
-
-                    for artist, dance in old_artists_and_dances:
-                        delete_unused_old_entities(artist, dance)
-
-                    flash(u'Successfully deleted {}'.format(entity.name))
-                    return redirect_back_or(url_for('songs.home'))
-
-                else:
-                    flash('Are you sure you want to delete?')
-                    form.sure_to_delete.data = True
-
-            elif form.rename.data:
-                new_name = form.rename_name.data
-                if new_name:
-                    entity.name = new_name
-
-                    db.session.merge(entity)
-                    db.session.commit()
-
-                    return redirect_back_or(url_for('songs.home'))
-                else:
-                    flash("You have to provide a new name to rename")
-        else:
-            flash(u'No %s with this name {}'.format(name), 'error-message')
-    return render_template("songs/entity_edit_form.html", form=form, data_to_delete=data_to_delete, next=next_url)
 
 
 def delete_unused_old_entities(old_artist, old_dance):

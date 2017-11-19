@@ -20,14 +20,12 @@ def set_basic_configuration_and_views(app):
     def not_found(error):
         return render_template('404.html'), 404
 
-    from akk.users.views import mod as users_module
-    app.register_blueprint(users_module)
+    from akk.users.views import UsersView
+    UsersView.register(app)
 
-    from akk.songs.views import mod as songs_module
-    app.register_blueprint(songs_module)
-
-    from akk.songs.views import wishlist_mod as wishlist_module
-    app.register_blueprint(wishlist_module)
+    from akk.songs.views import SongsView, WishlistView
+    SongsView.register(app)
+    WishlistView.register(app)
 
     from akk.admin.views import admin
     admin.init_app(app)
@@ -37,5 +35,5 @@ def set_basic_configuration_and_views(app):
 
     @app.route("/")
     def index():
-        return redirect(url_for("songs.home"))
+        return redirect(url_for("SongsView:home"))
 
