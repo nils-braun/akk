@@ -56,8 +56,8 @@ def read_in_hdd(base_path, user, no_replace):
 
     added_counter = 0
 
-    new_label, _ = Label.get_or_add_label("new")
-    probably_wrong_label, _ = Label.get_or_add_label("probably_wrong")
+    new_label, _ = get_or_add_label("new")
+    probably_wrong_label, _ = get_or_add_label("probably_wrong")
 
     for possible_dance_dir in top_level_entries:
         possible_dance_name = os.path.split(possible_dance_dir)[-1]
@@ -66,7 +66,7 @@ def read_in_hdd(base_path, user, no_replace):
         dance_name = possible_dance_name
         dance_dir = possible_dance_dir
 
-        dance, dance_new_created = Dance.get_or_add_dance(dance_name)
+        dance, dance_new_created = get_or_add_dance(dance_name)
 
         all_songs_with_this_dance = glob(os.path.join(dance_dir, "*/*.mp3"))
 
@@ -77,7 +77,7 @@ def read_in_hdd(base_path, user, no_replace):
                 continue
             else:
                 dance_name, artist_name, title_with_tag = dance_artist_title.split(" - ")
-                artist, artist_new_created = Artist.get_or_add_artist(artist_name)
+                artist, artist_new_created = get_or_add_artist(artist_name)
 
                 labels = []
 
@@ -85,7 +85,7 @@ def read_in_hdd(base_path, user, no_replace):
                     title = title_with_tag[:title_with_tag.rfind("(")]
                     label_name_string = title_with_tag[title_with_tag.rfind("(") + 1:title_with_tag.rfind(")")]
                     label_names = label_name_string.split(",")
-                    labels = [Label.get_or_add_label(label_name.strip())[0] for label_name in label_names]
+                    labels = [get_or_add_label(label_name.strip())[0] for label_name in label_names]
                 else:
                     title = title_with_tag
 

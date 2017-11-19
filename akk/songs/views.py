@@ -11,6 +11,7 @@ from .forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
 from .functions import delete_unused_old_entities, set_form_from_song, change_or_add_song, \
     delete_unused_only_labels, set_as_editing, unset_as_editing
 from .models import Artist, Dance, Song, Rating, Label, LabelsToSongs
+from akk.songs.functions import get_comments_except_user
 from .constants import SONG_FILE_FORMAT_WITH_BPM, SONG_FILE_FORMAT_WITHOUT_BPM
 
 
@@ -142,7 +143,7 @@ class BaseSongHandlerView(BaseView):
             if not song:
                 return render_template("404.html"), 404
 
-        other_comments = song.get_comments_except_user(current_user)
+        other_comments = get_comments_except_user(song, current_user)
 
         last_user_msg = ""
         if song.last_edit_user and song.last_edit_user != current_user:
@@ -220,7 +221,7 @@ class BaseSongHandlerView(BaseView):
 
         songs = sorted_songs_with_rating.limit(page_size).offset(page * page_size).all()
 
-        songs = [(song, Song.get_rating(rating))
+        songs = [(song, get_rating(rating))
                  for song, rating in songs]
 
         return render_template("songs/search_ajax.html", songs=songs)

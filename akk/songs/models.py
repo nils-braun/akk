@@ -1,12 +1,7 @@
-import random
-from datetime import datetime, timedelta
-
-from sqlalchemy import not_
+from datetime import timedelta
 
 from akk.common.models import db
 from akk.users.models import User
-
-from .constants import NOT_RATED_STRING
 
 
 class Dance(db.Model):
@@ -17,20 +12,6 @@ class Dance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(250), unique=True, nullable=False)
 
-    @staticmethod
-    def get_or_add_dance(dance_name):
-        dance = Dance.query.filter_by(name=dance_name).first()
-        dance_created_new = False
-        if not dance:
-            dance = Dance()
-            dance.name=dance_name
-            db.session.add(dance)
-            db.session.commit()
-
-            dance_created_new = True
-
-        return dance, dance_created_new
-
 
 class Artist(db.Model):
     """
@@ -40,42 +21,12 @@ class Artist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(250), unique=True, nullable=False)
 
-    @staticmethod
-    def get_or_add_artist(artist_name):
-        artist = Artist.query.filter_by(name=artist_name).first()
-        artist_created_new = False
-        if not artist:
-            artist = Artist()
-            artist.name=artist_name
-            db.session.add(artist)
-            db.session.commit()
-
-            artist_created_new = True
-
-        return artist, artist_created_new
-
 
 class Label(db.Model):
     __tablename__ = "songs_labels"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(150), unique=True)
     color = db.Column(db.Unicode(6))
-
-    @staticmethod
-    def get_or_add_label(label_name):
-        label = Label.query.filter_by(name=label_name).first()
-        label_created_new = False
-        if not label:
-            label = Label()
-            label.name = label_name
-            label.color = random.choice(["#db56b2", "#dbc256", "#db5e56", "#91db56",
-                                         "#56db7f", "#56d3db", "#566fdb", "#a056db"])
-            db.session.add(label)
-            db.session.commit()
-
-            label_created_new = True
-
-        return label, label_created_new
 
 
 class Song(db.Model):
@@ -111,30 +62,6 @@ class Song(db.Model):
 
     no_double_naming = db.UniqueConstraint(artist_id, dance_id, title)
 
-    @staticmethod
-    def get_rating(rating):
-        if rating is not None:
-            return "%d" % round(rating)
-        else:
-            return NOT_RATED_STRING
-
-    def get_user_rating(self, user):
-        query = Rating.query.filter_by(song_id=self.id, user_id=user.id)
-        if query.count() > 0:
-            return query.one().value
-        else:
-            return NOT_RATED_STRING
-
-    def get_comments_except_user(self, user):
-        return Comment.query.filter(Comment.song_id==self.id, not_(Comment.user_id==user.id)).all()
-
-    def get_user_comment(self, user):
-        query = Comment.query.filter_by(song_id=self.id, user_id=user.id)
-        if query.count() > 0:
-            return query.one()
-        else:
-            return None
-
 
 class Rating(db.Model):
     __tablename__ = "songs_ratings"
@@ -150,32 +77,6 @@ class Rating(db.Model):
     song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
 
     no_double_rating_constraint = db.UniqueConstraint(user_id, song_id)
-
-    @staticmethod
-    def set_add_or_delete_rating(song, user, rating_value):
-        query = Rating.query.filter_by(song_id=song.id, user_id=user.id)
-
-        if int(rating_value) != 0:
-            # There is a rating
-            if query.count() == 0:
-                # Add new rating
-                new_rating = Rating()
-                new_rating.song_id = song.id
-                new_rating.user_id = user.id
-                new_rating.value = rating_value
-
-                db.session.add(new_rating)
-            else:
-                # Update old rating
-                old_rating = query.one()
-                old_rating.value = rating_value
-                db.session.merge(old_rating)
-        else:
-            if query.count() > 0:
-                for rating_to_delete in query.all():
-                    db.session.delete(rating_to_delete)
-
-        db.session.commit()
 
 
 class Comment(db.Model):
@@ -193,31 +94,6 @@ class Comment(db.Model):
     song = db.relationship(Song, backref=db.backref(__tablename__, uselist=True, cascade='delete,all'))
 
     no_double_comment_constraint = db.UniqueConstraint(user_id, song_id)
-
-    @staticmethod
-    def set_or_add_comment(song, user, note_value):
-        if note_value.strip() == "":
-            # Do not add empty comments
-            return
-
-        query = Comment.query.filter_by(song_id=song.id, user_id=user.id)
-
-        if query.count() == 0:
-            # Add new rating
-            new_comment = Comment()
-            new_comment.song_id = song.id
-            new_comment.user_id = user.id
-            new_comment.creation_date = datetime.now()
-            new_comment.note = note_value
-
-            db.session.add(new_comment)
-        else:
-            # Update old rating
-            old_comment = query.one()
-            old_comment.note = note_value
-            db.session.merge(old_comment)
-
-        db.session.commit()
 
 
 class LabelsToSongs(db.Model):
