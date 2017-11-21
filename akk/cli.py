@@ -4,7 +4,8 @@ from glob import glob
 import requests
 
 from akk.common.models import db
-from akk.songs.functions import get_or_add_label, get_or_add_dance, get_or_add_artist, get_song_duration
+from akk.songs.functions import get_song_duration
+from akk.songs.model_functions import get_or_add_dance, get_or_add_artist, get_or_add_label
 from akk.songs.models import Song
 from akk.users.models import User
 

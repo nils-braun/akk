@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import request, render_template, flash, send_from_directory, current_app, session, json
 from flask_login import login_required, current_user
 from sqlalchemy import func, desc
@@ -8,10 +10,9 @@ from akk.extensions.classy import BaseView, add_methods, redirect_back_or
 from akk.common.models import db
 
 from .forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
-from .functions import delete_unused_old_entities, set_form_from_song, change_or_add_song, \
-    delete_unused_only_labels, set_as_editing, unset_as_editing
+from .functions import set_form_from_song, change_or_add_song
 from .models import Artist, Dance, Song, Rating, Label, LabelsToSongs
-from akk.songs.functions import get_comments_except_user
+from akk.songs.model_functions import get_comments_except_user, delete_unused_old_entities, delete_unused_only_labels
 from .constants import SONG_FILE_FORMAT_WITH_BPM, SONG_FILE_FORMAT_WITHOUT_BPM
 
 
@@ -115,10 +116,7 @@ class BaseSongHandlerView(BaseView):
             if form.edit_button.data and form.validate():
                 change_or_add_song(form, song)
 
-                unset_as_editing(song)
-
                 flash('Successfully updated song')
-
                 return redirect_back_or(self.__class__.__name__ + ':home')
 
             elif form.delete_button.data:
@@ -132,7 +130,7 @@ class BaseSongHandlerView(BaseView):
                 delete_unused_old_entities(old_artist, old_dance)
                 delete_unused_only_labels(old_labels)
 
-                flash('Sucessfully deleted song')
+                flash('Successfully deleted song')
 
                 return redirect_back_or(self.__class__.__name__ + ':home')
 
@@ -151,7 +149,11 @@ class BaseSongHandlerView(BaseView):
             last_user_msg = last_user_msg.format(user=song.last_edit_user.name,
                                                  editing_time=song.last_edit_date.strftime("%d.%m.%Y %H:%M"))
 
-        set_as_editing(song)
+        song.last_edit_user = current_user
+        song.last_edit_date = datetime.now()
+
+        db.session.merge(song)
+        db.session.commit()
 
         return render_template("songs/edit_song.html", form=form, other_comments=other_comments,
                                next=self.next_url, last_user_msg=last_user_msg)
