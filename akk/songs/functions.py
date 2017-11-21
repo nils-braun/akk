@@ -126,3 +126,21 @@ def change_or_add_song(form, song=None):
 
         if not request.endpoint.startswith("wishlist."):
             delete_unused_only_labels(old_labels)
+
+
+def add_correct_mp3_tag(f, song):
+    from mutagen.easyid3 import EasyID3
+    from mutagen.mp3 import MP3
+    mp3_file = MP3(f.name)
+    if not mp3_file.tags:
+        mp3_file.add_tags()
+        tags = mp3_file.tags
+        tags.save(f.name)
+    tag = EasyID3(f.name)
+    tag["title"] = song.title
+    tag["artist"] = song.artist.name
+    tag["albumartist"] = song.artist.name
+    if song.bpm:
+        tag["bpm"] = str(song.bpm)
+    tag["album"] = song.dance.name
+    tag.save()

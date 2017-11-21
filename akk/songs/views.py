@@ -1,3 +1,6 @@
+import os
+import shutil
+import tempfile
 from datetime import datetime
 
 from flask import request, render_template, flash, send_from_directory, current_app, session, json
@@ -6,14 +9,15 @@ from sqlalchemy import func, desc
 from werkzeug.utils import unescape
 
 from akk.common.helpers import slugify
-from akk.extensions.classy import BaseView, add_methods, redirect_back_or
 from akk.common.models import db
-
+from akk.extensions.classy import BaseView, add_methods, redirect_back_or
+from akk.songs.functions import add_correct_mp3_tag
+from akk.songs.model_functions import get_comments_except_user, delete_unused_old_entities, delete_unused_only_labels, \
+    get_rating
+from .constants import SONG_FILE_FORMAT_WITH_BPM, SONG_FILE_FORMAT_WITHOUT_BPM
 from .forms import EditArtistForm, EditDanceForm, CreateSongForm, EditSongForm
 from .functions import set_form_from_song, change_or_add_song
 from .models import Artist, Dance, Song, Rating, Label, LabelsToSongs
-from akk.songs.model_functions import get_comments_except_user, delete_unused_old_entities, delete_unused_only_labels
-from .constants import SONG_FILE_FORMAT_WITH_BPM, SONG_FILE_FORMAT_WITHOUT_BPM
 
 
 class BaseSongHandlerView(BaseView):
@@ -290,8 +294,13 @@ class SongsView(BaseSongHandlerView):
 
             session["download_id"] += 1
 
-            return send_from_directory(current_app.config["DATA_FOLDER"], song.path, as_attachment=True,
-                                       attachment_filename=slugify(attachment_filename))
+            with tempfile.NamedTemporaryFile() as f:
+                shutil.copy(os.path.join(current_app.root_path, current_app.config["DATA_FOLDER"], song.path), f.name)
+
+                add_correct_mp3_tag(f, song)
+
+                return send_from_directory(*os.path.split(f.name), as_attachment=True,
+                                           attachment_filename=slugify(attachment_filename))
 
     def serve_song(self):
         """
