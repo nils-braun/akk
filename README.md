@@ -41,7 +41,7 @@ On Windows: I have not tested this, but the approach is probably similar.
 
 After installation, you can run the web service with
 
-    python run.py
+    flask run
     
 in the main folder of the installation. This will start the web service
 listening for oncoming html connections in port 5000 of your machine. 
