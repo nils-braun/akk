@@ -9,3 +9,4 @@ mutagen
 requests
 lxml
 pymysql
+zappa

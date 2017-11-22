@@ -1,0 +1,14 @@
+{
+    "dev": {
+        "app_function": "app.app",
+        "aws_region": "eu-central-1",
+        "profile_name": "default",
+        "project_name": "akk",
+        "runtime": "python3.6",
+        "s3_bucket": "zappa-g1npqhtmj",
+        "vpc_config" : {
+            "SubnetIds": [ "subnet-cbd9e2a3","subnet-e58e83af","subnet-2fa7e355" ],
+            "SecurityGroupIds": [ "sg-3b175a50" ]
+        }
+    }
+}
