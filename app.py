@@ -1,9 +1,13 @@
 import click
 
+from flask_migrate import Migrate
+
 from akk import create_app
 from akk.cli import fill_db_from_folders, create_base_db, download_and_extract_bpm
+from akk.common.models import db
 
 app = create_app("config.py")
+migrate = Migrate(app, db)
 
 
 @app.cli.command()
