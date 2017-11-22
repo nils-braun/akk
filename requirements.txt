@@ -8,3 +8,4 @@ gunicorn
 mutagen
 requests
 lxml
+pymysql
