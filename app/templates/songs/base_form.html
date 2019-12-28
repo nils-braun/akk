@@ -10,4 +10,10 @@
                onclick="window.location='{{ next or url_for("songs.home") }}';"
                value="Abort" class="button red">
     </form>
+
+    <script type="application/javascript">
+        $(document).ready(function() {
+            add_audio_binding("{{ url_for("songs.serve_song") }}");
+        });
+    </script>
 {% endblock %}

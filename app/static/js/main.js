@@ -47,7 +47,7 @@ $.widget("custom.rating", {
             ratingHTMLElement.append("<input type='hidden' " +
                 "name='" + ratingHTMLElement.attr("name") + "' " +
                 "value='" + ratingObject.data + "'>");
-            
+
             ratingHTMLElement.append("<input type='button' " +
                 "class='unrate-star' value=''>");
         }
@@ -69,7 +69,7 @@ $.widget("custom.rating", {
                 ratingObject.data = images.index(this) + 1;
                 ratingObject.element.find("input[type=hidden]").val(ratingObject.data);
             });
-            
+
             ratingHTMLElement.on("mouseover", ".unrate-star", function () {
                 ratingObject.update(0);
             });
@@ -77,7 +77,7 @@ $.widget("custom.rating", {
             ratingHTMLElement.on("mouseleave", ".unrate-star", function () {
                 ratingObject.update(ratingObject.data);
             });
-            
+
             ratingHTMLElement.on("click", ".unrate-star", function () {
                 ratingObject.data = 0;
                 ratingObject.element.find("input[type=hidden]").val(ratingObject.data);
@@ -205,10 +205,23 @@ function add_audio_binding(play_url) {
             audio_to_play.pause();
         }
         $("#content-songlist").find(".player-controls").removeClass("playing");
+        $("#content").find("#play_button").removeClass("playing");
     }
 
     $("#content-songlist").on("click", ".player-controls", function () {
         var audio_file_name = play_url + "?song_id=" + get_audio_song_id(this);
+
+        stop_playing();
+
+        if (is_new_source(audio_file_name)) {
+            start_playing(audio_file_name, this);
+        }
+
+        return false;
+    });
+
+    $(".form").on("click", "#play_button", function () {
+        var audio_file_name = play_url + "?song_id=" + $("#song_id").val();
 
         stop_playing();
 

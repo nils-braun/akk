@@ -59,11 +59,13 @@
 }
 
 .player-controls, .download-controls {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     display: inline-block;
-    background-size: contain;
+    background-size: 20px;
     background-repeat: no-repeat;
+    background-position: 5px;
+    border: 1pt solid lightgray;
 }
 
 .player-controls{
@@ -76,6 +78,10 @@
 
 .player-controls.playing {
     background-image: url("../img/play_filled.png");
+}
+
+.reduced-padding {
+    padding: 0px !important;
 }
 
 .tag-span {
