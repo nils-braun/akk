@@ -205,6 +205,7 @@ function add_audio_binding(play_url) {
             audio_to_play.pause();
         }
         current_audio_file = undefined;
+        audio_to_play = undefined;
 
         $("#content-songlist").find(".player-controls").removeClass("playing");
         $("#content").find("#play_button").removeClass("playing");
@@ -212,12 +213,12 @@ function add_audio_binding(play_url) {
 
     $("#content-songlist").on("click", ".player-controls", function () {
         var audio_file_name = play_url + "?song_id=" + get_audio_song_id(this);
-        stop_playing();
 
-        if(!$(this).hasClass("playing")) {
-            if (is_new_source(audio_file_name)) {
-                start_playing(audio_file_name, this);
-            }
+        if($(this).hasClass("playing")) {
+            stop_playing();
+        } else if (is_new_source(audio_file_name)) {
+            stop_playing();
+            start_playing(audio_file_name, this);
         }
 
         return false;
@@ -225,12 +226,12 @@ function add_audio_binding(play_url) {
 
     $(".form").on("click", "#play_button", function () {
         var audio_file_name = play_url + "?song_id=" + $("#song_id").val();
-        stop_playing();
 
-        if(!$(this).hasClass("playing")) {
-            if (is_new_source(audio_file_name)) {
-                start_playing(audio_file_name, this);
-            }
+        if($(this).hasClass("playing")) {
+            stop_playing();
+        } else if (is_new_source(audio_file_name)) {
+            stop_playing();
+            start_playing(audio_file_name, this);
         }
 
         return false;
