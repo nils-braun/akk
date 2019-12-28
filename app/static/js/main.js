@@ -204,6 +204,8 @@ function add_audio_binding(play_url) {
         if (audio_to_play != undefined) {
             audio_to_play.pause();
         }
+        current_audio_file = undefined;
+
         $("#content-songlist").find(".player-controls").removeClass("playing");
         $("#content").find("#play_button").removeClass("playing");
     }
